@@ -55,5 +55,10 @@
     "heroicons-for-svelte": "^0.0.10",
     "resend": "^3.5.0",
     "stripe": "^13.3.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andytyler/supafetch.git"
+  },
+  "author": "andytyler"
 }
