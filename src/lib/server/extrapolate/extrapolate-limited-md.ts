@@ -1,3 +1,4 @@
+import type { User } from '@supabase/supabase-js';
 import { FeatureExtractionPipeline, pipeline } from '@xenova/transformers';
 import * as cheerio from "cheerio";
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
@@ -28,9 +29,17 @@ async function getEmbedding(text: string): Promise<number[]> {
 
 
 export async function crawlWebsite(
+  user: User,
   baseUrl: string,
   maxDepth: number = -1,
 ): Promise<void> {
+
+  const userId = user.id; 
+
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
+
   await loadModel(); // Load the model before crawling
   const visitedUrls = new Set<string>()
   const urlsToVisit: { url: string; depth: number }[] = [
@@ -121,7 +130,7 @@ export async function crawlWebsite(
       console.log(markdown)
 
       const title: string = $('title').text() || currentUrl.split("/").pop() || "Untitled"
-      await saveContent(currentUrl, markdown, title)
+      await saveContent(currentUrl, markdown, title, userId)
 
       // Add new URLs to visit if we haven't reached the max depth
       if (maxDepth === -1 || currentDepth < maxDepth) {
@@ -149,13 +158,16 @@ export async function crawlWebsite(
   console.log("Crawling completed")
 }
 
-async function saveContent(url: string, content: string, title: string): Promise<void> {
+async function saveContent(url: string, content: string, title: string, userId: string): Promise<void> {
   try {
+
+    
     // save parent content to supabase
     const data = {
       url,
       content,
       title,
+      owner_user: userId,
     };
     const { data: parentData, error: parentError } = await supabase.from("crawled_data").insert(data).select('id');
     if (parentError) {
@@ -199,16 +211,18 @@ async function saveContent(url: string, content: string, title: string): Promise
   }
 }
 
-export async function searchSimilarContent(query: string, limit: number = 5): Promise<any[]> {
+export async function searchSimilarContent(user: User, query: string, limit: number = 5): Promise<any[]> {
   try {
     // Generate embedding for the query
     const queryEmbedding = await getEmbedding(query);
 
+    console.log(user)
     // Perform the similarity search using the generated embedding
     const { data, error } = await supabase.rpc('match_documents', {
       query_embedding: queryEmbedding,
       match_threshold: 0.8, // Adjust this threshold as needed
-      match_count: limit
+      match_count: limit,
+      user_id_input: user.id
     });
 
     if (error) {

@@ -22,7 +22,7 @@
   })
 </script>
 
-<div class="mt-4">
+<div class="my-4">
   <h2 class="text-xl font-semibold mb-2">Tags</h2>
   {#if loading}
     <p class="text-gray-600">Loading tags...</p>

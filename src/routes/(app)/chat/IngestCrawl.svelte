@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation"
   import Snippet from "./Snippet.svelte"
+  import Tags from "./Tags.svelte"
 
   let loading = false
   let success = false
@@ -133,6 +134,8 @@
   class="mt-8 max-w-2xl mx-auto border border-border p-6 bg-background text-foreground rounded-lg shadow-md"
 >
   <h2 class="text-xl font-semibold mb-4">Search Crawled Content</h2>
+  <Tags />
+
   <div class="flex space-x-2">
     <form on:submit|preventDefault={handleSearch} class="flex space-x-2 w-full">
       <input
