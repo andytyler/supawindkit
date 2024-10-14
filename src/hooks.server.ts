@@ -9,6 +9,8 @@ import { createClient } from "@supabase/supabase-js"
 import type { Handle } from "@sveltejs/kit"
 
 export const handle: Handle = async ({ event, resolve }) => {
+  const cookiesToSet: { name: string; value: string; options: any }[] = []
+
   event.locals.supabase = createServerClient(
     PUBLIC_SUPABASE_URL,
     PUBLIC_SUPABASE_ANON_KEY,
@@ -22,7 +24,7 @@ export const handle: Handle = async ({ event, resolve }) => {
          */
         setAll: (cookiesToSet) => {
           cookiesToSet.forEach(({ name, value, options }) => {
-            event.cookies.set(name, value, { ...options, path: "/" })
+            cookiesToSet.push({ name, value, options: { ...options, path: "/" } })
           })
         },
       },
@@ -76,9 +78,16 @@ export const handle: Handle = async ({ event, resolve }) => {
     return { session, user, amr: aal.currentAuthenticationMethods }
   }
 
-  return resolve(event, {
+  const response = await resolve(event, {
     filterSerializedResponseHeaders(name) {
       return name === "content-range" || name === "x-supabase-api-version"
     },
   })
+
+  // Set the collected cookies after the response has been resolved
+  cookiesToSet.forEach(({ name, value, options }) => {
+    event.cookies.set(name, value, options)
+  })
+
+  return response
 }
