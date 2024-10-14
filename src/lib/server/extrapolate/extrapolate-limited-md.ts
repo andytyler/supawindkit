@@ -32,6 +32,7 @@ export async function crawlWebsite(
   user: User,
   baseUrl: string,
   maxDepth: number = -1,
+  crawlTitle: string = ""
 ): Promise<void> {
 
   const userId = user.id; 
@@ -91,14 +92,10 @@ export async function crawlWebsite(
       
       let cleanedMarkdown = '';
       if ($mainContent.length > 0) {
-        console.log("🟧  --- main content ---")
-        console.log($mainContent.html()?.length)
         // If a main content area is found, use only that
         const cleanedHtml = $mainContent.html() || '';
         cleanedMarkdown = turndownService.turndown(cleanedHtml);
       } else {
-        console.log("🟧  --- body content ---")
-        console.log($body.html()?.length)
         // If no main content area is found, use the cleaned body
         const cleanedHtml = $body.html() 
         if (!cleanedHtml || cleanedHtml.length === 0) {
@@ -113,23 +110,18 @@ export async function crawlWebsite(
         }
       }
       
-      console.log("🟧  --- cleaned markdown ---")
-      console.log(cleanedMarkdown.length)
       // Further clean the markdown
       cleanedMarkdown = cleanedMarkdown
         .replace(/\n{3,}/g, '\n\n') // Remove excess newlines
         .replace(/^\s+|\s+$/g, '') // Trim leading and trailing whitespace
         .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1'); // Remove links but keep link text
       
-      console.log("🟧  --- trimmed markdown ---");
-      console.log(cleanedMarkdown.length);
       
       // Update the markdown variable with the cleaned content
       markdown = cleanedMarkdown;
-      console.log("--- markdown ---")
-      console.log(markdown)
 
-      const title: string = $('title').text() || currentUrl.split("/").pop() || "Untitled"
+      const title:string=crawlTitle||$('title').text()||currentUrl.split("/").pop()||"Untitled"
+      
       await saveContent(currentUrl, markdown, title, userId)
 
       // Add new URLs to visit if we haven't reached the max depth
@@ -211,7 +203,7 @@ async function saveContent(url: string, content: string, title: string, userId: 
   }
 }
 
-export async function searchSimilarContent(user: User, query: string, limit: number = 5): Promise<any[]> {
+export async function searchSimilarContent(user: User, query: string, limit: number = 5, tagIds: number[] = []): Promise<any[]> {
   try {
     // Generate embedding for the query
     const queryEmbedding = await getEmbedding(query);
@@ -222,7 +214,8 @@ export async function searchSimilarContent(user: User, query: string, limit: num
       query_embedding: queryEmbedding,
       match_threshold: 0.8, // Adjust this threshold as needed
       match_count: limit,
-      user_id_input: user.id
+      user_id_input: user.id,
+      parent_ids: tagIds
     });
 
     if (error) {

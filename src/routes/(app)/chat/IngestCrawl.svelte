@@ -11,6 +11,7 @@
   let searching = false
   let input_url = ""
   let depth = 0
+  let crawl_title = "" // New variable for the crawl title
 
   const handleCrawl = async (event: Event) => {
     event.preventDefault()
@@ -18,13 +19,20 @@
     success = false
     error = null
 
+    // Validate that the title has no spaces
+    if (crawl_title.includes(" ")) {
+      error = "Title must not contain spaces."
+      loading = false
+      return
+    }
+
     try {
       const response = await fetch("/api/crawl", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ input_url, depth }),
+        body: JSON.stringify({ input_url, depth, crawl_title }), // Include crawl_title in the request
       })
 
       const result = await response.json()
@@ -71,6 +79,20 @@
 
   <form on:submit={handleCrawl} class="space-y-4 mb-8">
     <div>
+      <label for="crawl_title" class="block text-sm font-medium text-foreground"
+        >Crawl Title (no spaces)</label
+      >
+      <input
+        type="text"
+        id="crawl_title"
+        bind:value={crawl_title}
+        pattern="\S+"
+        title="Title must not contain spaces"
+        class="input input-bordered w-full"
+      />
+    </div>
+
+    <div>
       <label for="input_url" class="block text-sm font-medium text-foreground"
         >URL to crawl</label
       >
@@ -79,7 +101,7 @@
         id="input_url"
         bind:value={input_url}
         required
-        class="mt-1 block w-full rounded-md border-input shadow-sm focus:border-ring focus:ring focus:ring-ring focus:ring-opacity-50"
+        class="input input-bordered w-full"
       />
     </div>
 
@@ -94,7 +116,7 @@
         min="0"
         max="3"
         required
-        class="mt-1 block w-full rounded-md border-input shadow-sm focus:border-ring focus:ring focus:ring-ring focus:ring-opacity-50"
+        class="input input-bordered w-full"
       />
     </div>
 

@@ -17,11 +17,15 @@ export const GET: RequestHandler = async ({ locals }) => {
 
   try {
     // Query Supabase to get all parents uploaded by this user
-    const { data: parents, error } = await locals.supabase
-      .from('crawled_data')
-      .select('*')
-      .eq('owner_user', user.id)
+    const query = locals.supabase
+    .from('crawled_data')
+    .select('*')
+    .eq('owner_user', user.id)
+    .order('created_at', { ascending: false })
 
+    // type Tag = Awaited<ReturnType<typeof query>>
+
+    const { data: parents, error } = await query
     if (error) {
       throw error
     }

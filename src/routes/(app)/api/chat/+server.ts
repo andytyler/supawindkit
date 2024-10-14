@@ -1,14 +1,20 @@
 import { searchSimilarContent } from '$lib/server/extrapolate/extrapolate-limited-md';
-import type { RequestHandler } from './$types';
+import { json } from '@sveltejs/kit';
 import { askChatGPT } from '../../chat/llm';
+import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals, url }) => {
+
+  const { user } = await locals.safeGetSession()
+  if (!user) {
+    return json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const data = await request.json();
-  const { userInput, systemPrompt } = data;
-
+  const { userInput, systemPrompt, tagIds } = data;
 
   // Search for similar content
-  const similarContent = await searchSimilarContent(userInput, 3); // Limit to 3 results
+  const similarContent = await searchSimilarContent(user, userInput, 3, tagIds); // Limit to 3 results
 
   // Prepare context from similar content
   const context = similarContent.map(item => item.content).join('\n\n');

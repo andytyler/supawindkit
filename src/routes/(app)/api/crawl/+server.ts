@@ -3,7 +3,7 @@ import { json } from '@sveltejs/kit'
 import type { RequestHandler } from "./$types"
 
 export const POST: RequestHandler = async ({ request, locals, url }) => {
-  const { input_url, depth,title } = await request.json()
+  const { input_url, depth, crawl_title } = await request.json()
 
   const { user } = await locals.safeGetSession()
   if (!user) {
@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 
   console.log(`🕸️  REQUEST to crawl \n > website:(${input_url}) \n > with depth: (${depth})\n`)
   try {
-    await crawlWebsite(user, input_url, parseInt(depth))
+    await crawlWebsite(user, input_url, parseInt(depth), crawl_title)
     return json({ success: true })
   } catch (error) {
     console.error('Crawl error:', error)

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Snippet from "./Snippet.svelte"
-
   import { marked } from "marked"
   import { afterUpdate } from "svelte"
+  import Snippet from "./Snippet.svelte"
+  import Tags from "./Tags.svelte"
 
   let messages: {
     role: "user" | "assistant"
@@ -12,6 +12,8 @@
   let userInput = ""
   let loading = false
   let chatContainer: HTMLElement
+  let inputElement: HTMLTextAreaElement
+  let selectedTagIds: number[] = []
 
   function scrollToBottom(node: HTMLElement) {
     const scroll = () => node.scrollTo(0, node.scrollHeight)
@@ -24,9 +26,17 @@
     if (chatContainer) {
       chatContainer.scrollTo(0, chatContainer.scrollHeight)
     }
+    if (inputElement) {
+      inputElement.style.height = "auto"
+      inputElement.style.height = inputElement.scrollHeight + "px"
+    }
   })
 
-  async function handleSubmit() {
+  function handleTagsSelected(event: CustomEvent) {
+    selectedTagIds = event.detail.selectedTags
+  }
+
+  async function sendChatRequest() {
     loading = true
     messages = [...messages, { role: "user", content: userInput }]
     const systemPrompt =
@@ -38,7 +48,11 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userInput, systemPrompt }),
+        body: JSON.stringify({
+          userInput,
+          systemPrompt,
+          tagIds: selectedTagIds,
+        }),
       })
 
       if (!response.ok) {
@@ -122,11 +136,8 @@
             </div>
           {/if}
           <div
-            class={`max-w-[70%] p-2 rounded-lg ${
-              message.role === "user" ? "bg-blue-100" : "bg-gray-100"
-            }`}
+            class={`max-w-[70%] p-2 rounded-lg ${message.role === "user" ? "bg-blue-100" : "bg-gray-100"}`}
           >
-            <!-- Render message content as Markdown -->
             {@html marked(message.content)}
 
             {#if message.snippets && message.snippets.length > 0}
@@ -160,12 +171,18 @@
       {/each}
     </div>
 
-    <form on:submit|preventDefault={handleSubmit} class="flex gap-2 mx-6 mb-6">
+    <div class="flex mx-6">
+      <Tags on:tagsSelected={handleTagsSelected} />
+    </div>
+
+    <form
+      on:submit|preventDefault={sendChatRequest}
+      class="flex gap-2 mx-6 mb-6"
+    >
       <input
-        type="text"
         bind:value={userInput}
         placeholder="Type your message..."
-        class="input input-bordered w-full"
+        class="input input-bordered w-full resize-none p-2"
       />
       <button type="submit" disabled={loading} class="btn btn-primary">
         {loading ? "Sending..." : "Send"}
