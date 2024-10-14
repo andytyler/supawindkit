@@ -1,6 +1,6 @@
 import { crawlWebsite, searchSimilarContent } from "$lib/server/extrapolate/extrapolate-limited-md"
 import { json } from '@sveltejs/kit'
-import type { RequestHandler } from "../../crawl/$types"
+import type { RequestHandler } from "./$types"
 
 export const POST: RequestHandler = async ({ request, locals, url }) => {
   const { input_url, depth } = await request.json()

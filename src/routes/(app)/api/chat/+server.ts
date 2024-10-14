@@ -1,6 +1,6 @@
 import { searchSimilarContent } from '$lib/server/extrapolate/extrapolate-limited-md';
 import type { RequestHandler } from './$types';
-import { askChatGPT } from './llm';
+import { askChatGPT } from '../../chat/llm';
 
 export const POST: RequestHandler = async ({ request }) => {
   const data = await request.json();
@@ -14,18 +14,28 @@ export const POST: RequestHandler = async ({ request }) => {
   const context = similarContent.map(item => item.content).join('\n\n');
 
   // Enhance the user input with context
-  const enhancedUserInput = `Context:\n${context}\n\nUser Input: ${userInput}`;
+  const enhancedUserInput = `Snippets:\n${context}\n\nUser Input: ${userInput}`;
 
-  // Use the enhanced user input for the chat
+  // Extract snippets for referencing
+  const snippets = similarContent.map((item, index) => ({
+    id: index + 1,
+    content: item.content,
+    source: item.source, // Assuming each item has a 'source' field indicating origin
+  }));
 
   try {
     const stream = await askChatGPT(systemPrompt, enhancedUserInput);
-    
+
+    const snippetsJson = JSON.stringify(snippets);
+
     return new Response(new ReadableStream({
       async start(controller) {
+        // Stream the AI response
         for await (const chunk of stream) {
           controller.enqueue(chunk.choices[0]?.delta?.content || '');
         }
+        // Append the snippets at the end with a unique marker
+        controller.enqueue(`\n### Snippets Context\n${snippetsJson}`);
         controller.close();
       }
     }), {

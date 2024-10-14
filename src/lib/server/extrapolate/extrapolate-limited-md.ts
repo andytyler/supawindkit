@@ -46,24 +46,26 @@ export async function crawlWebsite(
 
     try {
       console.log("--- ----------------------------------- ---")
-      console.log(`Crawling: ${currentUrl} (Depth: ${currentDepth})`)
+      console.log(`🕸️  Crawling: ${currentUrl} (Depth: ${currentDepth})`)
       const page_response = await getHtml(currentUrl)
       if (
         !page_response ||
         !page_response.html ||
         page_response.status !== 200
       ) {
-        console.error(`Failed to load page: ${currentUrl}`)
+        console.error(`🚨  Failed to load page: ${currentUrl}`)
         continue
       }
+      console.log(`🕸️  Loaded page: ${page_response.html.length} characters`)
+      // console.log("--- markdown PRE ---")
+      // console.log(page_response.html)
       const $ = cheerio.load(page_response.html)
 
       // Convert HTML to Markdown and save the content
       let markdown = turndownService.turndown($.html())
-      // console.log("--- markdown ---")
-      // console.log(markdown)
       // Remove everything but the core content of the site
       const $body = $('body');
+      // console.log("--- markdown POST ---")
       
       // Remove common non-relevant elements
       $body.find('header, nav, footer, script, style, iframe, aside, .sidebar, .ads, .comments, [class*="menu"], [id*="menu"], [class*="nav"], [id*="nav"], [class*="header"], [id*="header"], [class*="footer"], [id*="footer"]').remove();
@@ -73,34 +75,53 @@ export async function crawlWebsite(
       
       // Remove empty paragraphs and divs
       $body.find('p:empty, div:empty').remove();
+      // console.log($body.html())
       
       // Keep only the main content area (adjust selector as needed)
-      const $mainContent = $body.find('main, #content, .content, article, [role="main"]');
+      const $mainContent = $body.find('main, #content, .content, .contents, article, [role="main"]');
       
       let cleanedMarkdown = '';
       if ($mainContent.length > 0) {
+        console.log("🟧  --- main content ---")
+        console.log($mainContent.html()?.length)
         // If a main content area is found, use only that
         const cleanedHtml = $mainContent.html() || '';
         cleanedMarkdown = turndownService.turndown(cleanedHtml);
       } else {
+        console.log("🟧  --- body content ---")
+        console.log($body.html()?.length)
         // If no main content area is found, use the cleaned body
-        const cleanedHtml = $body.html() || '';
-        cleanedMarkdown = turndownService.turndown(cleanedHtml);
+        const cleanedHtml = $body.html() 
+        if (!cleanedHtml || cleanedHtml.length === 0) {
+          console.log("🚨  No body content found")
+          continue
+        }
+        try { 
+          cleanedMarkdown = turndownService.turndown(cleanedHtml);
+        } catch (error) {
+          console.log("🚨  Error turndowning body content")
+          throw new Error("Error turndowning body content")
+        }
       }
       
+      console.log("🟧  --- cleaned markdown ---")
+      console.log(cleanedMarkdown.length)
       // Further clean the markdown
       cleanedMarkdown = cleanedMarkdown
         .replace(/\n{3,}/g, '\n\n') // Remove excess newlines
         .replace(/^\s+|\s+$/g, '') // Trim leading and trailing whitespace
         .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1'); // Remove links but keep link text
       
-      // console.log("--- cleaned markdown ---");
-      // console.log(cleanedMarkdown);
+      console.log("🟧  --- trimmed markdown ---");
+      console.log(cleanedMarkdown.length);
       
       // Update the markdown variable with the cleaned content
       markdown = cleanedMarkdown;
-      // console.log("--- markdown ---")
-      await saveContent(currentUrl, markdown)
+      console.log("--- markdown ---")
+      console.log(markdown)
+
+      const title: string = $('title').text() || currentUrl.split("/").pop() || "Untitled"
+      await saveContent(currentUrl, markdown, title)
 
       // Add new URLs to visit if we haven't reached the max depth
       if (maxDepth === -1 || currentDepth < maxDepth) {
@@ -128,19 +149,20 @@ export async function crawlWebsite(
   console.log("Crawling completed")
 }
 
-async function saveContent(url: string, content: string): Promise<void> {
+async function saveContent(url: string, content: string, title: string): Promise<void> {
   try {
     // save parent content to supabase
     const data = {
       url,
       content,
+      title,
     };
     const { data: parentData, error: parentError } = await supabase.from("crawled_data").insert(data).select('id');
     if (parentError) {
       throw new Error(`Error inserting parent data: ${parentError.message}`);
     }
 
-    console.log(`Parent data saved for URL: ${url} with id: ${parentData[0].id}\n\n`);
+    console.log(`💾  💾 Parent data saved for URL: ${url} with id: ${parentData[0].id}\n\n`);
     // Create a text splitter
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 1000,
@@ -149,6 +171,7 @@ async function saveContent(url: string, content: string): Promise<void> {
 
     // Split content into chunks
     const chunks = await textSplitter.splitText(content);
+    console.log(`💾  >> Split content into ${chunks.length} chunks`);
 
     // Generate vector embeddings for all chunks at once
     
@@ -184,7 +207,7 @@ export async function searchSimilarContent(query: string, limit: number = 5): Pr
     // Perform the similarity search using the generated embedding
     const { data, error } = await supabase.rpc('match_documents', {
       query_embedding: queryEmbedding,
-      match_threshold: 0.5, // Adjust this threshold as needed
+      match_threshold: 0.8, // Adjust this threshold as needed
       match_count: limit
     });
 

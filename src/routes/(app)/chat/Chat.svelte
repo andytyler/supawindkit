@@ -1,0 +1,175 @@
+<script lang="ts">
+  import Snippet from "./Snippet.svelte"
+
+  import { marked } from "marked"
+  import { afterUpdate } from "svelte"
+
+  let messages: {
+    role: "user" | "assistant"
+    content: string
+    snippets?: any[]
+  }[] = []
+  let userInput = ""
+  let loading = false
+  let chatContainer: HTMLElement
+
+  function scrollToBottom(node: HTMLElement) {
+    const scroll = () => node.scrollTo(0, node.scrollHeight)
+    return {
+      update: scroll,
+    }
+  }
+
+  afterUpdate(() => {
+    if (chatContainer) {
+      chatContainer.scrollTo(0, chatContainer.scrollHeight)
+    }
+  })
+
+  async function handleSubmit() {
+    loading = true
+    messages = [...messages, { role: "user", content: userInput }]
+    const systemPrompt =
+      "You are a helpful assistant. You have access to snippets, for context, in the user input. Use them to answer the user's question, briefly."
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userInput, systemPrompt }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok")
+      }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      let assistantMessage: {
+        role: "assistant"
+        content: string
+        snippets: any[]
+      } = { role: "assistant", content: "", snippets: [] }
+      messages = [...messages, assistantMessage]
+
+      while (true) {
+        const result = await reader?.read()
+        if (!result || result.done) break
+        const chunk = decoder.decode(result.value)
+
+        // Check for the snippets marker
+        const snippetsMarker = "### Snippets Context"
+        if (chunk.includes(snippetsMarker)) {
+          const [answerPart, snippetsPart] = chunk.split(snippetsMarker)
+          assistantMessage.content += answerPart
+          try {
+            assistantMessage.snippets = JSON.parse(snippetsPart)
+          } catch (e) {
+            console.error("Failed to parse snippets:", e)
+          }
+        } else {
+          assistantMessage.content += chunk
+        }
+
+        messages = [...messages]
+      }
+
+      userInput = ""
+    } catch (error) {
+      console.error("Error:", error)
+      messages = [
+        ...messages,
+        {
+          role: "assistant",
+          content: "💀 An error occurred while processing your request.",
+        },
+      ]
+    } finally {
+      loading = false
+    }
+  }
+</script>
+
+<div class="min-h-screen bg-gray-100 p-4 sm:p-6 md:p-8">
+  <div
+    class="max-w-6xl w-full h-[calc(100vh-2rem)] sm:h-[calc(100vh-3rem)] md:h-[calc(100vh-4rem)] mx-auto bg-white rounded-lg shadow-md flex flex-col"
+  >
+    <h1 class="text-2xl font-bold m-6">SupaChat</h1>
+
+    <div
+      bind:this={chatContainer}
+      use:scrollToBottom
+      class="flex-grow mx-6 mb-6 overflow-y-auto border border-gray-300 rounded-md p-4"
+    >
+      {#each messages as message}
+        <div
+          class={`mb-4 flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+        >
+          {#if message.role === "assistant"}
+            <div
+              class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-gray-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+              </svg>
+            </div>
+          {/if}
+          <div
+            class={`max-w-[70%] p-2 rounded-lg ${
+              message.role === "user" ? "bg-blue-100" : "bg-gray-100"
+            }`}
+          >
+            <!-- Render message content as Markdown -->
+            {@html marked(message.content)}
+
+            {#if message.snippets && message.snippets.length > 0}
+              <div class="mt-2 p-2 border-l-4 border-yellow-500 rounded">
+                <h4 class="font-semibold text-yellow-700">Snippets Context:</h4>
+                {#each message.snippets as snippet}
+                  <Snippet {snippet} />
+                {/each}
+              </div>
+            {/if}
+          </div>
+          {#if message.role === "user"}
+            <div
+              class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center ml-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-white"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+          {/if}
+        </div>
+      {/each}
+    </div>
+
+    <form on:submit|preventDefault={handleSubmit} class="flex gap-2 mx-6 mb-6">
+      <input
+        type="text"
+        bind:value={userInput}
+        placeholder="Type your message..."
+        class="input input-bordered w-full"
+      />
+      <button type="submit" disabled={loading} class="btn btn-primary">
+        {loading ? "Sending..." : "Send"}
+      </button>
+    </form>
+  </div>
+</div>
