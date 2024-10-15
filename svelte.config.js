@@ -6,7 +6,9 @@ import path from "path"
 const config = {
   kit: {
     alias: {
-      $components: path.resolve("./src/components"), // Define the $lib alias
+      $components: path.resolve("./src/lib/components"), // Define the $lib alias
+      $lib: path.resolve("./src/lib"), // Define the $lib alias
+      $utils: path.resolve("./src/lib/utils"), // Define the $lib alias
     },
 
     // adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.

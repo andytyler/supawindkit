@@ -1,6 +1,6 @@
 <script>
-  import { WebsiteName } from "./../../config"
   import "../../app.css"
+  import { WebsiteName } from "./../../config"
 </script>
 
 <div class="navbar bg-base-100 container mx-auto">
@@ -32,6 +32,7 @@
           >
         </a>
       </li>
+      <li class="md:mx-2"><a href="/chat">Chat</a></li>
     </ul>
     <div class="dropdown dropdown-end sm:hidden">
       <!-- svelte-ignore a11y-label-has-associated-control -->
