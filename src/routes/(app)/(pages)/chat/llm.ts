@@ -68,3 +68,33 @@ export async function askChatGPT(systemPrompt: string, userInput: string) {
 	});
 	return response;
 }
+
+export async function askChatGPTNoStream(systemPrompt: string, userInput: string) {
+	console.log('🤖  askChatGPTNoStream: ', systemPrompt.slice(0, 50) + '...');
+	const response = await openai.chat.completions.create({
+		model: 'gpt-4o-mini',
+		messages: [
+			{
+				role: "system",
+				content: systemPrompt,
+			},
+			{
+				role: "user",
+				content: userInput,
+			},
+		],
+		max_tokens: 4096,
+	});
+
+	if (response.choices[0].message?.content) {
+		return {
+			data: response.choices[0].message?.content?.trim(),
+			error: null,
+		};
+	} else {
+		return {
+			data: null,
+			error: 'No response from ChatGPT',
+		};
+	}
+}

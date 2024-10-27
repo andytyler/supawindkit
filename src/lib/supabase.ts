@@ -17,8 +17,8 @@ if (!supabaseUrl || !supabaseKey) {
   )
 }
 
-console.log("Supabase URL:", PUBLIC_SUPABASE_URL)
-console.log("Supabase Key:", PUBLIC_SUPABASE_ANON_KEY)
+// console.log("Supabase URL:", PUBLIC_SUPABASE_URL)
+// console.log("Supabase Key:", PUBLIC_SUPABASE_ANON_KEY)
 
 const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey)
 

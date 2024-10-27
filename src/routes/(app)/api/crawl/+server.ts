@@ -28,6 +28,12 @@ export const GET: RequestHandler = async ({ request, locals, url }) => {
   }
   const query = url.searchParams.get('query') || ''
   const limit = url.searchParams.get('limit') || '5'
-  const results = await searchSimilarContent(user, query, parseInt(limit))
+  const tagIds = url.searchParams.get('tagIds') || ''
+  const parsedTagIds = tagIds ? JSON.parse(tagIds) : [];
+  console.log(`🔍  REQUEST to search \n > query:(${query}) \n > with limit: (${limit})\n`)
+
+  const results = await searchSimilarContent(user, query, parseInt(limit), parsedTagIds);
+
+  console.log(`🔍  RESPONSE \n > results:(${results})\n`)
   return json({ results })
 }

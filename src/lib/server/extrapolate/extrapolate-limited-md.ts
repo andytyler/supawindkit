@@ -150,7 +150,7 @@ export async function crawlWebsite(
   console.log("Crawling completed")
 }
 
-async function saveContent(url: string, content: string, title: string, userId: string): Promise<void> {
+export async function saveContent(url: string, content: string, title: string, userId: string): Promise<void> {
   try {
 
     
@@ -208,7 +208,12 @@ export async function searchSimilarContent(user: User, query: string, limit: num
     // Generate embedding for the query
     const queryEmbedding = await getEmbedding(query);
 
-    console.log(user)
+    if (!user) {
+      throw new Error("User not logged in");
+    }
+
+
+    console.log(`🔍  Performing similarity search for query: ${query} with limit: ${limit} and tagIds: ${tagIds}`)
     // Perform the similarity search using the generated embedding
     const { data, error } = await supabase.rpc('match_documents', {
       query_embedding: queryEmbedding,

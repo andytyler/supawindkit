@@ -9,6 +9,8 @@ const config = {
       $components: path.resolve("./src/lib/components"), // Define the $lib alias
       $lib: path.resolve("./src/lib"), // Define the $lib alias
       $utils: path.resolve("./src/lib/utils"), // Define the $lib alias
+      $server: path.resolve("./src/lib/server"), // Define the $lib alias
+      $types: path.resolve("./src/lib/types"), // Define the $lib alias
     },
 
     // adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.

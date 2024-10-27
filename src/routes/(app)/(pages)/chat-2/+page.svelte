@@ -1,16 +1,14 @@
-
-
 <script lang="ts">
-	// import { accounts, mails } from "./data.js";
-	import Mail from "./Mail.svelte";
+  // import { accounts, mails } from "./data.js";
+  import Mail from "./Mail.svelte"
 
-	export let data;
+  export let data
 </script>
 
 <Mail
-	accounts={null}
-	mails={null}
-	defaultLayout={data.layout}
-	defaultCollapsed={data.collapsed}
-	navCollapsedSize={4}
+  accounts={[]}
+  mails={[]}
+  defaultLayout={data.layout}
+  defaultCollapsed={data.collapsed}
+  navCollapsedSize={4}
 />

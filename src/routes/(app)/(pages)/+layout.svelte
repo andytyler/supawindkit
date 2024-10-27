@@ -1,10 +1,4 @@
 <script lang="ts">
-  import { page } from "$app/stores"
-  import { Button } from "$lib/components/ui/button"
-  import * as Sheet from "$lib/components/ui/sheet"
-  import { cn } from "$lib/utils"
-  import { Bell, Menu } from "lucide-svelte"
-
   let isOpen = false
 
   const navItems = [
@@ -14,8 +8,8 @@
 </script>
 
 <!-- Top Navigation Bar -->
-<nav class="bg-background border-b">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<!-- <nav class="bg-background border-b">
+  <div class="w-full mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <div class="flex items-center">
         <a href="/" class="flex-shrink-0">
@@ -73,31 +67,13 @@
       </div>
     </div>
   </div>
-</nav>
+</nav> -->
 
 <!-- Main Content Area -->
-<div class="flex h-[calc(100vh-4rem)] overflow-hidden">
-  <!-- Side Navigation (visible on larger screens) -->
-  <aside class="hidden md:flex w-64 flex-col bg-muted">
-    <nav class="flex-1 px-2 py-4 space-y-2">
-      {#each navItems as item}
-        <a
-          href={item.href}
-          class={cn(
-            "flex items-center px-2 py-2 text-sm font-medium rounded-md",
-            $page.url.pathname === item.href
-              ? "bg-secondary text-secondary-foreground"
-              : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground",
-          )}
-        >
-          {item.label}
-        </a>
-      {/each}
-    </nav>
-  </aside>
-
+<div class="flex h-screen min-h-full overflow-hidden">
+  <!-- h-[calc(100vh-4rem)] -->
   <!-- Main Content -->
-  <main class="flex-1 overflow-y-auto bg-background p-6">
+  <main class="flex-1 bg-background h-full">
     <slot />
   </main>
 </div>

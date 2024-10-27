@@ -1,36 +1,36 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte"
 
-  let tags: any[] = [];
-  let loading = true;
-  let errorMessage: string | null = null;
-  let selectedTags: number[] = [];
+  let tags: any[] = []
+  let loading = true
+  let errorMessage: string | null = null
+  let selectedTags: number[] = []
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher()
 
   onMount(async () => {
     try {
-      const response = await fetch("/api/tags");
+      const response = await fetch("/api/tags")
       if (!response.ok) {
-        throw new Error("Failed to fetch tags");
+        throw new Error("Failed to fetch tags")
       }
-      const data = await response.json();
-      tags = data.results;
+      const data = await response.json()
+      tags = data.results
     } catch (err) {
-      console.error("Error fetching tags:", err);
-      errorMessage = "Failed to load tags. Please try again later.";
+      console.error("Error fetching tags:", err)
+      errorMessage = "Failed to load tags. Please try again later."
     } finally {
-      loading = false;
+      loading = false
     }
-  });
+  })
 
   function toggleTag(tagId: number) {
     if (selectedTags.includes(tagId)) {
-      selectedTags = selectedTags.filter(id => id !== tagId);
+      selectedTags = selectedTags.filter((id) => id !== tagId)
     } else {
-      selectedTags = [...selectedTags, tagId];
+      selectedTags = [...selectedTags, tagId]
     }
-    dispatch('tagsSelected', { selectedTags });
+    dispatch("tagsSelected", { selectedTags })
   }
 </script>
 
