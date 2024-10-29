@@ -1,4 +1,4 @@
-import { sortedBlogPosts, blogInfo } from "../posts"
+import { blogInfo, sortedBlogPosts } from "../posts"
 
 const encodeXML = (str: string) =>
   str
