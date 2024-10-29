@@ -1,4 +1,4 @@
-import { supabase } from '$lib/server/supabaseClient';
+import supabase from '$lib/supabase';
 import { marked } from 'marked';
 import type { PageServerLoad } from './$types';
 

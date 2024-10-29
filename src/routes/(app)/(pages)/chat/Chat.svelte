@@ -171,8 +171,11 @@
                     const { clientRect } = props
                     if (clientRect) {
                       popup.style.position = "fixed"
-                      popup.style.left = `${window.scrollX + clientRect().left}px`
-                      popup.style.top = `${window.scrollY + clientRect().bottom}px`
+                      const rect = clientRect()
+                      if (rect) {
+                        popup.style.left = `${window.scrollX + rect.left}px`
+                        popup.style.top = `${window.scrollY + rect.bottom}px`
+                      }
                     }
                   },
                   onUpdate: (props) => {
