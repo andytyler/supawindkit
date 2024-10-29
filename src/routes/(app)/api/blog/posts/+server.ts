@@ -1,4 +1,4 @@
-import { supabase } from '$lib/server/supabaseClient';
+import supabase from '$lib/supabase';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 

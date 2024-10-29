@@ -8,9 +8,11 @@
     ResizablePane,
   } from "$lib/components/ui/resizable"
   import { Separator } from "$lib/components/ui/separator"
+  import type { PageData } from "./$types"
   import Chat from "./Chat.svelte"
   import IngestCrawl from "./IngestCrawl.svelte"
 
+  export let data: PageData
   // You'll need to get these from your data/props
   export let user = {
     name: "John Doe",
