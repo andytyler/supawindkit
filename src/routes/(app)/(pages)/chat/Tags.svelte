@@ -33,12 +33,7 @@
     selectedTags = selectedTags.includes(tagId)
       ? selectedTags.filter((id) => id !== tagId)
       : [...selectedTags, tagId]
-    dispatch("tagsSelected", { selectedTags })
-  }
-
-  function clearTags() {
-    selectedTags = []
-    dispatch("tagsSelected", { selectedTags })
+    dispatch("tagsSelected", { selectedTags: selectedTags })
   }
 
   function clearTags() {

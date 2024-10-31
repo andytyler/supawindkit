@@ -2,12 +2,14 @@
   import { browser } from "$app/environment"
   import { Button } from "$components/ui/button"
   import { Separator } from "$components/ui/separator"
+  import { selectedTagIds } from "$stores/tags"
   import { Editor } from "@tiptap/core"
-  import type { SuggestionKeyDownProps } from "@tiptap/suggestion"
   import { ChevronRight } from "lucide-svelte"
   import { marked } from "marked"
   import { afterUpdate, onDestroy, onMount } from "svelte"
+  import type { Unsubscriber } from "svelte/store"
   import TurndownService from "turndown"
+  import MentionPopup from "./MentionPopup.svelte"
   import Snippet from "./Snippet.svelte"
 
   const turndownService = new TurndownService()
@@ -21,7 +23,6 @@
   let loading = false
   let chatContainer: HTMLElement
   let inputElement: HTMLTextAreaElement
-  let selectedTagIds: number[] = []
   let allTagIds: { id: number; title: string }[] = []
 
   let editor: Editor | null = null
@@ -36,6 +37,157 @@
       update: scroll,
     }
   }
+  let previousSelectedTagIds: number[] = []
+
+  /**
+   * Stores the unsubscribe function for the store subscription.
+   */
+  let unsubscribeStore: Unsubscriber
+
+  /**
+   * Subscribes to changes in the selectedTagIds store to synchronize mentions.
+   */
+  onMount(async () => {
+    if (browser) {
+      // Dynamically import Tiptap modules only on the client side
+      const { Editor } = await import("@tiptap/core")
+      const { default: StarterKit } = await import("@tiptap/starter-kit")
+      const { default: Mention } = await import("@tiptap/extension-mention")
+
+      // Fetch tags when component mounts
+      try {
+        const response = await fetch("/api/tags")
+        if (!response.ok) throw new Error("Failed to fetch tags")
+        const data = await response.json()
+        allTagIds = data.results
+      } catch (error) {
+        console.error("Error fetching tags:", error)
+      }
+
+      // Add proper typing for the mention suggestion
+      type MentionSuggestion = {
+        items: Array<{ id: number; title: string }>
+        command: (item: { id: string; label: string }) => void
+        clientRect: () => DOMRect | null
+        range: any
+      }
+
+      editor = new Editor({
+        element: editorElement,
+        extensions: [
+          StarterKit,
+          Mention.configure({
+            HTMLAttributes: {
+              class: "mention",
+              "data-type": "mention",
+            },
+            suggestion: {
+              char: "@",
+              allowSpaces: false,
+              items: ({ query }) => {
+                return allTagIds
+                  .filter((tag) =>
+                    tag.title.toLowerCase().includes(query.toLowerCase()),
+                  )
+                  .slice(0, 5)
+              },
+              render: () => {
+                let component: any
+                let popup: MentionPopup
+
+                return {
+                  onStart: (props) => {
+                    const existingPopups =
+                      document.querySelectorAll('[role="menu"]')
+                    existingPopups.forEach((popup) => {
+                      popup.remove()
+                    })
+
+                    component = new MentionPopup({
+                      target: document.body,
+                      props: {
+                        items: props.items,
+                        command: ({ id, label }) => {
+                          props.command({ id, label })
+                          const numId = parseInt(id)
+                          selectedTagIds.update((current) =>
+                            current.includes(numId)
+                              ? current
+                              : [...current, numId],
+                          )
+                          component.$destroy()
+                        },
+                        clientRect: props.clientRect,
+                        range: props.range,
+                      },
+                    })
+                    popup = component
+                  },
+                  onUpdate: (props) => {
+                    if (component) {
+                      component.$set({
+                        items: props.items,
+                        command: ({ id, label }) => {
+                          props.command({ id, label })
+                          const numId = parseInt(id)
+                          selectedTagIds.update((current) =>
+                            current.includes(numId)
+                              ? current
+                              : [...current, numId],
+                          )
+                          component.$destroy()
+                        },
+                        clientRect: props.clientRect,
+                        range: props.range,
+                      })
+                    }
+                  },
+                  onKeyDown: (props) => {
+                    if (popup?.handleKeyDown) {
+                      return popup.handleKeyDown(props.event)
+                    }
+                    return false
+                  },
+                  onExit: () => {
+                    if (component) {
+                      component.$destroy()
+                    }
+                  },
+                }
+              },
+            },
+          }),
+        ],
+        content: "",
+        onUpdate: ({ editor }) => {
+          userInput = editor.getHTML()
+          syncMentionsWithTags(editor)
+        },
+      })
+
+      /**
+       * Subscribe to selectedTagIds store changes to synchronize mentions.
+       */
+      unsubscribeStore = selectedTagIds.subscribe((currentSelectedTagIds) => {
+        const removedTagIds = previousSelectedTagIds.filter(
+          (id) => !currentSelectedTagIds.includes(id),
+        )
+
+        removedTagIds.forEach((tagId) => {
+          removeMentionByTagId(tagId)
+        })
+
+        previousSelectedTagIds = [...currentSelectedTagIds]
+      })
+    }
+  })
+
+  onDestroy(() => {
+    if (unsubscribeStore) unsubscribeStore()
+    if (editor) {
+      editor.destroy()
+    }
+  })
 
   afterUpdate(() => {
     if (chatContainer) {
@@ -47,17 +199,33 @@
     }
   })
 
-  function handleTagsSelected(event: CustomEvent) {
-    selectedTagIds = event.detail.selectedTags
+  /**
+   * Removes all mentions in the editor associated with a specific tag ID.
+   * @param tagId - The ID of the tag to remove mentions for.
+   */
+  function removeMentionByTagId(tagId: number) {
+    if (!editor) return
+
+    editor.view.state.doc.descendants((node, pos) => {
+      if (node.type.name === "mention" && node.attrs.id === tagId.toString()) {
+        editor.commands.deleteRange({ from: pos, to: pos + node.nodeSize })
+      }
+    })
   }
 
+  /**
+   * Sends a chat request to the server with the current user input and selected tags.
+   */
   async function sendChatRequest() {
+    if (!editor) return
+
     loading = true
+    console.log("Loading started")
     const markdownContent = turndownService.turndown(userInput)
 
     // Show the user what context is being used
-    if (selectedTagIds.length > 0) {
-      const tagNames = selectedTagIds
+    if ($selectedTagIds.length > 0) {
+      const tagNames = $selectedTagIds
         .map((id) => allTagIds.find((t) => t.id === id)?.title)
         .filter(Boolean)
       messages = [
@@ -84,7 +252,7 @@
         body: JSON.stringify({
           userInput: markdownContent,
           systemPrompt,
-          tagIds: selectedTagIds,
+          tagIds: $selectedTagIds,
           exampleOutput: exampleOutput || null,
         }),
       })
@@ -95,47 +263,58 @@
 
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
-      let assistantMessage: {
-        role: "assistant"
-        content: string
-        snippets: any[]
-      } = { role: "assistant", content: "", snippets: [] }
-      messages = [...messages, assistantMessage]
 
-      let streamComplete = false
-      while (!streamComplete && reader) {
-        try {
-          const result = await reader.read()
-          streamComplete = result.done
-          if (streamComplete) break
+      if (reader && decoder) {
+        let assistantMessage: {
+          role: "assistant"
+          content: string
+          snippets: any[]
+        } = { role: "assistant", content: "", snippets: [] }
+        messages = [...messages, assistantMessage]
 
-          const chunk = decoder.decode(result.value)
+        let streamComplete = false
+        while (!streamComplete && reader) {
+          try {
+            const result = await reader.read()
+            streamComplete = result.done
+            if (streamComplete) break
 
-          // Check for the snippets marker
-          const snippetsMarker = "### Snippets Context"
-          if (chunk.includes(snippetsMarker)) {
-            const [answerPart, snippetsPart] = chunk.split(snippetsMarker)
-            assistantMessage.content += answerPart
-            try {
-              assistantMessage.snippets = JSON.parse(snippetsPart)
-            } catch (e) {
-              console.error("Failed to parse snippets:", e)
+            const chunk = decoder.decode(result.value)
+
+            // Check for the snippets marker
+            const snippetsMarker = "### Snippets Context"
+            if (chunk.includes(snippetsMarker)) {
+              const [answerPart, snippetsPart] = chunk.split(snippetsMarker)
+              assistantMessage.content += answerPart
+              try {
+                assistantMessage.snippets = JSON.parse(snippetsPart)
+              } catch (e) {
+                console.error("Failed to parse snippets:", e)
+              }
+            } else {
+              assistantMessage.content += chunk
             }
-          } else {
-            assistantMessage.content += chunk
+
+            messages = [...messages]
+          } catch (error) {
+            console.error("Stream reading error:", error)
+            streamComplete = true
           }
-
-          messages = [...messages]
-        } catch (error) {
-          console.error("Stream reading error:", error)
-          streamComplete = true
         }
-      }
 
-      userInput = ""
-      // Clear the editor content
-      if (editor) {
-        editor.commands.setContent("")
+        userInput = ""
+        // Clear the editor content and destroy any active mention popups
+        editor.commands.clearContent()
+
+        // Force destroy any active mention popups
+        const activeMentionPopups = document.querySelectorAll('[role="menu"]')
+        activeMentionPopups.forEach((popup) => {
+          popup.remove()
+        })
+      } else {
+        console.error("Reader or decoder is unavailable")
+        loading = false
+        return
       }
     } catch (error) {
       console.error("Error:", error)
@@ -148,204 +327,24 @@
       ]
     } finally {
       loading = false
+      console.log("Loading ended")
     }
   }
 
-  onMount(async () => {
-    if (browser) {
-      // Dynamically import Tiptap modules only on the client side
-      const { Editor } = await import("@tiptap/core")
-      const { default: StarterKit } = await import("@tiptap/starter-kit")
-      const { default: Mention } = await import("@tiptap/extension-mention")
+  // Add function to sync mentions with tags
+  function syncMentionsWithTags(editor: Editor) {
+    const doc = editor.state.doc
+    const mentionIds = new Set<number>()
 
-      // Fetch tags when component mounts
-      try {
-        const response = await fetch("/api/tags")
-        if (!response.ok) throw new Error("Failed to fetch tags")
-        const data = await response.json()
-        allTagIds = data.results
-      } catch (error) {
-        console.error("Error fetching tags:", error)
+    doc.descendants((node) => {
+      if (node.type.name === "mention") {
+        mentionIds.add(parseInt(node.attrs.id))
       }
+    })
 
-      editor = new Editor({
-        element: editorElement,
-        extensions: [
-          StarterKit,
-          Mention.configure({
-            HTMLAttributes: {
-              class: "mention",
-            },
-            suggestion: {
-              char: "@",
-              items: ({ query }) => {
-                return allTagIds
-                  .filter((tag) =>
-                    tag.title.toLowerCase().startsWith(query.toLowerCase()),
-                  )
-                  .slice(0, 5)
-              },
-              render: () => {
-                let popup: HTMLElement
-                let selectedIndex = 0
-
-                return {
-                  onStart: (props) => {
-                    popup = document.createElement("div")
-                    popup.className =
-                      "absolute bg-white shadow-lg rounded-lg p-2 min-w-[200px] border border-gray-200 z-50"
-                    document.body.appendChild(popup)
-
-                    const { clientRect } = props
-                    if (clientRect) {
-                      popup.style.position = "fixed"
-                      const rect = clientRect()
-                      if (rect) {
-                        popup.style.left = `${window.scrollX + rect.left}px`
-                        popup.style.top = `${window.scrollY + rect.bottom}px`
-                      }
-                    }
-                  },
-                  onUpdate: (props) => {
-                    const items = props.items as Array<{
-                      id: number
-                      title: string
-                    }>
-                    selectedIndex = 0
-
-                    popup.innerHTML = `
-                      <div class="flex flex-col gap-1">
-                        ${items
-                          .map(
-                            (item, index) => `
-                          <button 
-                            class="p-2 hover:bg-gray-100 rounded text-left flex items-center gap-2 w-full ${
-                              index === selectedIndex ? "bg-gray-100" : ""
-                            }"
-                            data-id="${item.id}"
-                            data-index="${index}"
-                          >
-                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                            ${item.title}
-                          </button>
-                        `,
-                          )
-                          .join("")}
-                      </div>
-                    `
-
-                    // Add click handlers
-                    popup.querySelectorAll("button").forEach((button) => {
-                      button.addEventListener("click", () => {
-                        const id = button.getAttribute("data-id")
-                        const item = items.find((i) => i.id.toString() === id)
-                        if (item) {
-                          // Add the selected tag ID to selectedTagIds if not already present
-                          if (!selectedTagIds.includes(item.id)) {
-                            selectedTagIds = [...selectedTagIds, item.id]
-                          }
-                          props.command({
-                            id: item.id.toString(),
-                            label: item.title,
-                          })
-                        }
-                      })
-                    })
-                  },
-                  onKeyDown: (props: SuggestionKeyDownProps) => {
-                    const items = props.items as Array<{
-                      id: number
-                      title: string
-                    }>
-
-                    // Return early if no items
-                    if (!items?.length) return false
-
-                    const event = props.event as KeyboardEvent
-
-                    // Handle keyboard navigation
-                    switch (event.key) {
-                      case "ArrowUp":
-                        event.preventDefault()
-                        selectedIndex =
-                          (selectedIndex - 1 + items.length) % items.length
-                        updateSelection()
-                        return true
-
-                      case "ArrowDown":
-                        event.preventDefault()
-                        selectedIndex = (selectedIndex + 1) % items.length
-                        updateSelection()
-                        return true
-
-                      case "Enter":
-                        event.preventDefault()
-                        const selectedItem = items[selectedIndex]
-                        if (selectedItem) {
-                          // Add the selected tag ID to selectedTagIds if not already present
-                          if (!selectedTagIds.includes(selectedItem.id)) {
-                            selectedTagIds = [
-                              ...selectedTagIds,
-                              selectedItem.id,
-                            ]
-                          }
-                          props.command({
-                            id: selectedItem.id.toString(),
-                            label: selectedItem.title,
-                          })
-                          return true
-                        }
-                        return false
-
-                      case "Escape":
-                        event.preventDefault()
-                        props.range.parent.remove()
-                        return true
-
-                      case "Tab":
-                        // Prevent tab from moving focus
-                        event.preventDefault()
-                        return false
-
-                      default:
-                        return false
-                    }
-                  },
-                  onExit: () => {
-                    popup?.remove()
-                  },
-                }
-
-                function updateSelection() {
-                  const buttons = popup?.querySelectorAll("button")
-                  buttons?.forEach((button, index) => {
-                    if (index === selectedIndex) {
-                      button.classList.add("bg-gray-100")
-                    } else {
-                      button.classList.remove("bg-gray-100")
-                    }
-                  })
-                }
-              },
-            },
-          }),
-        ],
-        content: "",
-        onUpdate: ({ editor }) => {
-          userInput = editor.getHTML()
-        },
-      })
-    }
-  })
-
-  onDestroy(() => {
-    if (editor) {
-      editor.destroy()
-    }
-  })
-
-  function updateTags(tags: number[]) {
-    selectedTagIds = tags
+    selectedTagIds.update((current) =>
+      Array.from(new Set([...current.filter((id) => mentionIds.has(id))])),
+    )
   }
 </script>
 
@@ -357,17 +356,15 @@
   >
     {#each messages as message}
       <div
-        class={`mb-4 flex ${
-          message.role === "user" ? "justify-end" : "justify-start"
-        }`}
+        class={`mb-4 flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
       >
         {#if message.role === "assistant"}
           <div
-            class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2"
+            class="w-8 h-8 rounded-full bg-card flex items-center justify-center mr-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 text-gray-600"
+              class="h-5 w-5 text-foreground"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -376,9 +373,7 @@
           </div>
         {/if}
         <div
-          class={`max-w-[70%] p-2 rounded-lg ${
-            message.role === "user" ? "bg-blue-100" : "bg-gray-100"
-          }`}
+          class={`max-w-[70%] p-2 rounded-lg ${message.role === "user" ? "bg-primary/50" : "bg-secondary"}`}
         >
           {@html marked(message.content)}
 
@@ -393,11 +388,11 @@
         </div>
         {#if message.role === "user"}
           <div
-            class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center ml-2"
+            class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 text-white"
+              class="h-5 w-5 text-foreground"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -424,9 +419,7 @@
         >
           <ChevronRight
             size={16}
-            class="transition-transform duration-200 {showExampleInput
-              ? 'rotate-90'
-              : ''}"
+            class={`transition-transform duration-200 ${showExampleInput ? "rotate-90" : ""}`}
           />
           Format Response Using Example
         </button>
@@ -448,20 +441,20 @@
         <div class="relative">
           <div bind:this={editorElement} class="relative" />
 
-          {#if selectedTagIds.length > 0}
+          {#if $selectedTagIds.length > 0}
             <div class="mt-2 flex flex-wrap gap-2">
-              {#each selectedTagIds as tagId}
+              {#each $selectedTagIds as tagId}
                 {#if allTagIds.find((t) => t.id === tagId)}
                   <div
-                    class="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-2.5 py-1 rounded-full text-sm font-medium border border-primary/20"
+                    class="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-2.5 py-1 rounded-md text-sm font-medium border border-primary/20"
                   >
                     <span>{allTagIds.find((t) => t.id === tagId)?.title}</span>
                     <button
                       type="button"
-                      class="hover:text-primary/80 transition-colors"
+                      class="hover:text-primary transition-colors"
                       on:click={() => {
-                        selectedTagIds = selectedTagIds.filter(
-                          (id) => id !== tagId,
+                        selectedTagIds.update((current) =>
+                          current.filter((id) => id !== tagId),
                         )
                       }}
                     >
@@ -514,15 +507,20 @@
     @apply text-muted-foreground float-left pointer-events-none h-0;
   }
 
-  :global(.tiptap span.mention) {
-    @apply bg-primary/10 text-primary px-1.5 py-0.5 
-           rounded-md font-medium inline-flex items-center 
-           gap-1 border border-primary/20 transition-colors
-           hover:bg-primary/15;
-  }
-
   /* Add some spacing between paragraphs in the editor */
   :global(.tiptap p) {
-    @apply mb-1;
+    @apply mb-1 text-sm text-foreground;
+  }
+
+  :global(.mention[data-type="mention"]) {
+    @apply bg-primary text-primary-foreground px-1.5 py-0.5 
+           rounded-md font-medium inline-flex items-center 
+           gap-1 border border-primary/20 transition-colors
+           hover:bg-primary/80 cursor-default
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  :global(.mention[data-type="mention"].selected) {
+    @apply bg-primary/20;
   }
 </style>
