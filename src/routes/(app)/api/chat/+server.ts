@@ -11,7 +11,7 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
   }
 
   const data = await request.json();
-  const { userInput, systemPrompt, tagIds } = data;
+  const { userInput, systemPrompt, tagIds, exampleOutput } = data;
 
   // Search for similar content
   const similarContent = await searchSimilarContent(user, userInput, 3, tagIds); // Limit to 3 results
@@ -19,8 +19,8 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
   // Prepare context from similar content
   const context = similarContent.map(item => item.content).join('\n\n');
 
-  // Enhance the user input with context
-  const enhancedUserInput = `Snippets:\n${context}\n\nUser Input: ${userInput}`;
+  // Enhance the user input with context and example if provided
+  const enhancedUserInput = `${exampleOutput ? `Desired Output Format:\n${exampleOutput}\n\n` : ''}Snippets:\n${context}\n\nUser Input: ${userInput}`;
 
   // Extract snippets for referencing
   const snippets = similarContent.map((item, index) => ({

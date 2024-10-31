@@ -17,6 +17,12 @@
   let crawl_title = "" // New variable for the crawl title
   let selectedTagIds: number[] = []
 
+  let textContent = ""
+  let textTitle = ""
+  let textLoading = false
+  let textSuccess = false
+  let textError: string | null = null
+
   const handleCrawl = async (event: Event) => {
     event.preventDefault()
     loading = true
@@ -83,12 +89,57 @@
       searching = false
     }
   }
+
+  const handleAddText = async (event: Event) => {
+    event.preventDefault()
+    textLoading = true
+    textSuccess = false
+    textError = null
+
+    // Validate that the title has no spaces
+    if (textTitle.includes(" ")) {
+      textError = "Title must not contain spaces."
+      textLoading = false
+      return
+    }
+
+    try {
+      const response = await fetch("/api/add-content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: textContent,
+          title: textTitle,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        textSuccess = true
+        textContent = ""
+        textTitle = ""
+        await invalidateAll()
+      } else {
+        textError =
+          result.error || "An error occurred while saving the content."
+      }
+    } catch (err) {
+      console.error("Save error:", err)
+      textError = "An unexpected error occurred."
+    } finally {
+      textLoading = false
+    }
+  }
 </script>
 
 <div class="max-w-4xl mt-8 mx-4">
   <Tabs.Root value="crawl" class="w-full">
-    <Tabs.List class="grid w-full grid-cols-2 mb-4">
-      <Tabs.Trigger value="crawl">Add Content</Tabs.Trigger>
+    <Tabs.List class="grid w-full grid-cols-3 mb-4">
+      <Tabs.Trigger value="crawl">Crawl Website</Tabs.Trigger>
+      <Tabs.Trigger value="text">Add Text</Tabs.Trigger>
       <Tabs.Trigger value="search">Search Content</Tabs.Trigger>
     </Tabs.List>
 
@@ -181,6 +232,83 @@
               class="mt-4 p-4 bg-destructive text-destructive-foreground rounded-md"
             >
               {error}
+            </div>
+          {/if}
+        </Card.Content>
+      </Card.Root>
+    </Tabs.Content>
+
+    <Tabs.Content value="text">
+      <Card.Root>
+        <Card.Header>
+          <Card.Title>Add Text Content</Card.Title>
+          <Card.Description>Enter text content to save</Card.Description>
+        </Card.Header>
+        <Card.Content>
+          <form on:submit={handleAddText} class="space-y-4">
+            <div>
+              <label
+                for="text_title"
+                class="block text-sm font-medium text-foreground"
+                >Title (no spaces)</label
+              >
+              <input
+                type="text"
+                id="text_title"
+                bind:value={textTitle}
+                pattern="\S+"
+                title="Title must not contain spaces"
+                required
+                class="input input-bordered w-full"
+              />
+            </div>
+
+            <div>
+              <label
+                for="text_content"
+                class="block text-sm font-medium text-foreground">Content</label
+              >
+              <textarea
+                id="text_content"
+                bind:value={textContent}
+                required
+                rows="10"
+                class="textarea textarea-bordered w-full"
+                placeholder="Enter your content here..."
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              disabled={textLoading}
+              class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring disabled:opacity-50"
+            >
+              {textLoading ? "Saving..." : "Save Content"}
+            </button>
+          </form>
+
+          {#if textLoading}
+            <div class="mt-4 text-center">
+              <div
+                class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"
+              ></div>
+              <p class="mt-2 text-muted-foreground">
+                Saving content, please wait...
+              </p>
+            </div>
+          {/if}
+
+          {#if textSuccess}
+            <div class="mt-4 p-4 bg-green-100 text-green-700 rounded-md">
+              Content saved successfully!
+            </div>
+          {/if}
+
+          {#if textError}
+            <div
+              class="mt-4 p-4 bg-destructive text-destructive-foreground rounded-md"
+            >
+              {textError}
             </div>
           {/if}
         </Card.Content>

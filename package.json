@@ -71,6 +71,7 @@
     "heroicons-for-svelte": "^0.0.10",
     "langchain": "^0.3.2",
     "marked": "^14.1.2",
+    "mode-watcher": "^0.4.1",
     "openai": "^4.67.3",
     "resend": "^3.5.0",
     "stripe": "^13.3.0",

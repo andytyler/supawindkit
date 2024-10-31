@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
-    WebsiteName,
     WebsiteBaseUrl,
     WebsiteDescription,
+    WebsiteName,
   } from "./../../config"
 
   const ldJson = {
@@ -235,7 +235,7 @@
       <div
         class="text-xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-4 md:mb-8"
       >
-        SaaS Starter Demo
+        Cursor, for everyone else.
       </div>
 
       <div
@@ -245,17 +245,16 @@
         The
         <span
           class="underline decoration-secondary decoration-4 md:decoration-[6px]"
-          >open source</span
+          >Workbench</span
         >,
         <span
           class="underline decoration-secondary decoration-4 md:decoration-[6px]"
-          >fast</span
-        >, and
+          >for</span
+        >, knowledge
         <span
           class="underline decoration-secondary decoration-4 md:decoration-[6px]"
-          >free to host</span
+          >workers.</span
         >
-        <span> SaaS template</span>
       </div>
       <div class="mt-6 md:mt-10 text-sm md:text-lg">
         Built with <a

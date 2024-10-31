@@ -4,11 +4,11 @@
   import { Separator } from "$components/ui/separator"
   import { Editor } from "@tiptap/core"
   import type { SuggestionKeyDownProps } from "@tiptap/suggestion"
+  import { ChevronRight } from "lucide-svelte"
   import { marked } from "marked"
   import { afterUpdate, onDestroy, onMount } from "svelte"
   import TurndownService from "turndown"
   import Snippet from "./Snippet.svelte"
-  import Tags from "./Tags.svelte"
 
   const turndownService = new TurndownService()
 
@@ -26,6 +26,9 @@
 
   let editor: Editor | null = null
   let editorElement: HTMLDivElement
+
+  let showExampleInput = false
+  let exampleOutput = ""
 
   function scrollToBottom(node: HTMLElement) {
     const scroll = () => node.scrollTo(0, node.scrollHeight)
@@ -50,11 +53,27 @@
 
   async function sendChatRequest() {
     loading = true
-    // Convert HTML to Markdown
     const markdownContent = turndownService.turndown(userInput)
+
+    // Show the user what context is being used
+    if (selectedTagIds.length > 0) {
+      const tagNames = selectedTagIds
+        .map((id) => allTagIds.find((t) => t.id === id)?.title)
+        .filter(Boolean)
+      messages = [
+        ...messages,
+        {
+          role: "assistant",
+          content: `Using context from tags: ${tagNames.join(", ")}`,
+        },
+      ]
+    }
+
     messages = [...messages, { role: "user", content: markdownContent }]
-    const systemPrompt =
-      "You are a helpful assistant. You have access to snippets, for context, in the user input. Use them to answer the user's question, briefly."
+
+    const systemPrompt = exampleOutput
+      ? `You are a helpful assistant. When formatting your response, use this example as a template for the structure:\n\n${exampleOutput}\n\nMaintain a similar format while providing relevant content.`
+      : "You are a helpful assistant. You have access to snippets, for context, in the user input. Use them to answer the user's question, briefly."
 
     try {
       const response = await fetch("/api/chat", {
@@ -63,9 +82,10 @@
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userInput: markdownContent, // Send markdown instead of HTML
+          userInput: markdownContent,
           systemPrompt,
           tagIds: selectedTagIds,
+          exampleOutput: exampleOutput || null,
         }),
       })
 
@@ -82,26 +102,34 @@
       } = { role: "assistant", content: "", snippets: [] }
       messages = [...messages, assistantMessage]
 
-      while (true) {
-        const result = await reader?.read()
-        if (!result || result.done) break
-        const chunk = decoder.decode(result.value)
+      let streamComplete = false
+      while (!streamComplete && reader) {
+        try {
+          const result = await reader.read()
+          streamComplete = result.done
+          if (streamComplete) break
 
-        // Check for the snippets marker
-        const snippetsMarker = "### Snippets Context"
-        if (chunk.includes(snippetsMarker)) {
-          const [answerPart, snippetsPart] = chunk.split(snippetsMarker)
-          assistantMessage.content += answerPart
-          try {
-            assistantMessage.snippets = JSON.parse(snippetsPart)
-          } catch (e) {
-            console.error("Failed to parse snippets:", e)
+          const chunk = decoder.decode(result.value)
+
+          // Check for the snippets marker
+          const snippetsMarker = "### Snippets Context"
+          if (chunk.includes(snippetsMarker)) {
+            const [answerPart, snippetsPart] = chunk.split(snippetsMarker)
+            assistantMessage.content += answerPart
+            try {
+              assistantMessage.snippets = JSON.parse(snippetsPart)
+            } catch (e) {
+              console.error("Failed to parse snippets:", e)
+            }
+          } else {
+            assistantMessage.content += chunk
           }
-        } else {
-          assistantMessage.content += chunk
-        }
 
-        messages = [...messages]
+          messages = [...messages]
+        } catch (error) {
+          console.error("Stream reading error:", error)
+          streamComplete = true
+        }
       }
 
       userInput = ""
@@ -315,13 +343,17 @@
       editor.destroy()
     }
   })
+
+  function updateTags(tags: number[]) {
+    selectedTagIds = tags
+  }
 </script>
 
-<div class="min-h-full h-full bg-card flex flex-col">
+<div class="min-h-full h-screen bg-card flex flex-col">
   <div
     bind:this={chatContainer}
     use:scrollToBottom
-    class="flex-1 mx-6 overflow-y-auto"
+    class="flex-1 mx-6 overflow-y-auto pb-[200px]"
   >
     {#each messages as message}
       <div
@@ -381,37 +413,116 @@
     {/each}
   </div>
 
-  <div class="sticky bottom-0 bg-card">
+  <div class="sticky bottom-0 bg-card border-t">
     <Separator class="mb-2" />
-    <div class="p-4">
-      <div class="flex mx-6">
-        <Tags on:tagsSelected={handleTagsSelected} />
-      </div>
-
-      <form
-        on:submit|preventDefault={sendChatRequest}
-        class="flex flex-col gap-2"
-      >
-        <div bind:this={editorElement} />
-        <Button
-          class="w-fit self-end"
-          type="submit"
-          disabled={loading}
-          size="sm"
-          variant="default"
+    <div class="p-4 space-y-4">
+      <form on:submit|preventDefault={sendChatRequest} class="space-y-4">
+        <button
+          type="button"
+          class="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full"
+          on:click={() => (showExampleInput = !showExampleInput)}
         >
-          {loading ? "Sending..." : "Send"}
-        </Button>
+          <ChevronRight
+            size={16}
+            class="transition-transform duration-200 {showExampleInput
+              ? 'rotate-90'
+              : ''}"
+          />
+          Format Response Using Example
+        </button>
+
+        {#if showExampleInput}
+          <div class="rounded-md border bg-muted p-3">
+            <textarea
+              bind:value={exampleOutput}
+              class="w-full min-h-[100px] p-2 text-sm font-mono bg-background border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+              placeholder="Paste an example of how you want the AI response to be formatted..."
+            />
+            <p class="text-xs text-muted-foreground mt-2">
+              The AI will use this example as a template for structuring its
+              responses
+            </p>
+          </div>
+        {/if}
+
+        <div class="relative">
+          <div bind:this={editorElement} class="relative" />
+
+          {#if selectedTagIds.length > 0}
+            <div class="mt-2 flex flex-wrap gap-2">
+              {#each selectedTagIds as tagId}
+                {#if allTagIds.find((t) => t.id === tagId)}
+                  <div
+                    class="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-2.5 py-1 rounded-full text-sm font-medium border border-primary/20"
+                  >
+                    <span>{allTagIds.find((t) => t.id === tagId)?.title}</span>
+                    <button
+                      type="button"
+                      class="hover:text-primary/80 transition-colors"
+                      on:click={() => {
+                        selectedTagIds = selectedTagIds.filter(
+                          (id) => id !== tagId,
+                        )
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          {/if}
+        </div>
+
+        <div class="flex justify-end">
+          <Button type="submit" disabled={loading} size="sm" variant="default">
+            {loading ? "Sending..." : "Send"}
+          </Button>
+        </div>
       </form>
     </div>
   </div>
 </div>
 
 <style>
-  :global(.tiptap span.mention) {
-    @apply bg-primary text-primary-foreground px-1 rounded font-bold inline-flex items-center gap-1 border border-primary transition-colors;
-  }
   :global(.tiptap) {
-    @apply resize-y prose max-w-none w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] max-h-[300px] overflow-y-auto;
+    @apply resize-none prose max-w-none w-full 
+           rounded-lg border border-input bg-background 
+           px-4 py-3 text-sm ring-offset-background 
+           placeholder:text-muted-foreground
+           focus-visible:outline-none focus-visible:ring-2 
+           focus-visible:ring-ring focus-visible:ring-offset-2 
+           min-h-[120px] max-h-[300px] overflow-y-auto
+           shadow-sm transition-colors;
+  }
+
+  :global(.tiptap p.is-editor-empty:first-child::before) {
+    content: "Type your message here...";
+    @apply text-muted-foreground float-left pointer-events-none h-0;
+  }
+
+  :global(.tiptap span.mention) {
+    @apply bg-primary/10 text-primary px-1.5 py-0.5 
+           rounded-md font-medium inline-flex items-center 
+           gap-1 border border-primary/20 transition-colors
+           hover:bg-primary/15;
+  }
+
+  /* Add some spacing between paragraphs in the editor */
+  :global(.tiptap p) {
+    @apply mb-1;
   }
 </style>

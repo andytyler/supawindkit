@@ -16,23 +16,27 @@ export const GET: RequestHandler = async ({ locals }) => {
   }
 
   try {
-    // Query Supabase to get all parents uploaded by this user
+    // Query Supabase to get all unique titles as tags
     const query = locals.supabase
-    .from('crawled_data')
-    .select('*')
-    .eq('owner_user', user.id)
-    .order('created_at', { ascending: false })
+      .from('crawled_data')
+      .select('id, title')
+      .eq('owner_user', user.id)
+      .order('created_at', { ascending: false })
 
-    // type Tag = Awaited<ReturnType<typeof query>>
-
-    const { data: parents, error } = await query
+    const { data: tags, error } = await query
     if (error) {
       throw error
     }
 
-    return json({ results: parents })
+    // Transform the data to match the expected tag format
+    const formattedTags = tags.map(tag => ({
+      id: tag.id,
+      title: tag.title
+    }))
+
+    return json({ results: formattedTags })
   } catch (error) {
-    console.error('Error fetching parents:', error)
+    console.error('Error fetching tags:', error)
     return json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

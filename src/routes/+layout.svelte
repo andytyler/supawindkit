@@ -1,9 +1,12 @@
 <script lang="ts">
-  import "../app.css"
   import { navigating } from "$app/stores"
+  import { ModeWatcher } from "mode-watcher"
   import { expoOut } from "svelte/easing"
   import { slide } from "svelte/transition"
+  import "../app.css"
 </script>
+
+<ModeWatcher />
 
 {#if $navigating}
   <!-- 

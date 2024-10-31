@@ -19,13 +19,23 @@
     email: "john@example.com",
     imageUrl: "https://github.com/shadcn.png", // Example avatar URL
   }
+
+  let selectedTags: number[] = []
+
+  function handleTagsSelected(event: CustomEvent<{ selectedTags: number[] }>) {
+    selectedTags = event.detail.selectedTags
+    // Update the chat component with new tags
+    if (chat) {
+      chat.updateTags(selectedTags)
+    }
+  }
 </script>
 
 <div class="flex flex-col md:flex-row gap-4 h-full">
   <PaneGroup direction="horizontal">
     <ResizablePane defaultSize={1 / 3} minSize={30}>
       <div class="flex items-center justify-between px-4 py-4">
-        <h1 class="text-xl font-bold">Website Crawler</h1>
+        <h1 class="text-xl font-bold">Knowledge Base</h1>
       </div>
       <Separator />
       <IngestCrawl />
@@ -33,14 +43,16 @@
     <ResizableHandle withHandle />
     <ResizablePane defaultSize={2 / 3} minSize={30}>
       <div class="flex items-center justify-between px-4 py-4">
-        <h1 class="text-xl font-bold">Supafetch Chat</h1>
+        <div class="flex items-center gap-4">
+          <h1 class="text-xl font-bold">Chat</h1>
+        </div>
 
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild let:builder>
             <Button
               variant="ghost"
               builders={[builder]}
-              class="relative flex items-center gap-2 h-10 px-3 rounded-full hover:bg-accent"
+              class="relative flex items-center gap-2 h-6 px-3 rounded-full hover:bg-accent"
             >
               <Avatar.Root class="h-8 w-8">
                 <Avatar.Image
@@ -84,7 +96,10 @@
         </DropdownMenu.Root>
       </div>
       <Separator />
-      <Chat />
+
+      <div class="">
+        <Chat />
+      </div>
     </ResizablePane>
   </PaneGroup>
 </div>
