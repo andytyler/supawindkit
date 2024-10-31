@@ -148,7 +148,7 @@
   bind:this={popup}
   role="menu"
   tabindex="0"
-  class="absolute z-50 min-w-[200px] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
+  class="absolute z-[9999] min-w-[200px] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
   on:keydown={handleKeyDown}
 >
   <div class="flex items-center justify-between border-b px-2 py-1">

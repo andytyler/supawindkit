@@ -9,8 +9,8 @@
   } from "$lib/components/ui/resizable"
   import { Separator } from "$lib/components/ui/separator"
   import type { PageData } from "./$types"
-  import Chat from "./Chat.svelte"
   import IngestCrawl from "./IngestCrawl.svelte"
+  import ParentChat from "./ParentChat.svelte"
 
   export let data: PageData
   // You'll need to get these from your data/props
@@ -98,7 +98,9 @@
       <Separator />
 
       <div class="">
-        <Chat />
+        <!-- <MessagesContainer {messages} />
+        <TipTapInput /> -->
+        <ParentChat />
       </div>
     </ResizablePane>
   </PaneGroup>
