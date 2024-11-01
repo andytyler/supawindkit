@@ -1,17 +1,8 @@
 <script lang="ts">
+  import type { Activity } from "$lib/types"
   import { draggable } from "@neodrag/svelte"
   import { fade } from "svelte/transition"
-
-  type Activity = {
-    id: string
-    title: string
-    type: "document" | "image" | "video" | "note"
-    group: string
-    content: string
-    position: { x: number; y: number }
-    zIndex: number
-  }
-
+  import GmailComposerCard from "./GmailComposerCard.svelte"
   export let activity: Activity
 </script>
 
@@ -19,20 +10,50 @@
   use:draggable={{
     bounds: "parent",
     handle: ".handle",
-    grid: [24, 24],
+    grid: activity.config?.gridSize ?? [24, 24],
     position: activity.position,
   }}
-  class="absolute bg-card rounded-lg shadow-lg border border-border min-w-[200px]"
-  style="z-index: {activity.zIndex};"
+  class="absolute bg-card rounded-lg shadow-lg border border-border hover:border-border-hover transition-colors"
+  style="
+    z-index: {activity.zIndex};
+    min-width: {activity.config?.minWidth ?? '200px'};
+  "
   transition:fade
+  role="button"
+  tabindex="0"
+  on:click
+  on:keydown={(e) => e.key === "Enter" && e.target}
 >
   <div
     class="handle bg-muted p-2 rounded-t-lg cursor-move flex items-center justify-between"
   >
-    <span class="font-medium">{activity.title}</span>
+    <div class="flex items-center gap-2">
+      {#if activity.config?.favicon}
+        <img
+          src={`https://www.google.com/s2/favicons?domain=${activity.config?.favicon}&size=256`}
+          alt="Favicon"
+          class="w-6 h-6"
+        />
+      {/if}
+      <span class="font-medium">{activity.title}</span>
+    </div>
     <span class="text-xs text-muted-foreground">{activity.group}</span>
   </div>
-  <div class="p-4 bg-card rounded-b-lg">
-    {activity.content}
+  <div class="bg-card rounded-b-lg">
+    {#if activity.type === "email" && typeof activity.content === "object"}
+      <GmailComposerCard
+        subject={activity.content.subject}
+        to={activity.content.to}
+        content={activity.content.body}
+      />
+    {:else if activity.type === "image"}
+      <img
+        src={activity.content}
+        alt={activity.title}
+        class="w-full h-auto rounded-b-lg"
+      />
+    {:else}
+      <p class="p-4">{activity.content}</p>
+    {/if}
   </div>
 </div>
