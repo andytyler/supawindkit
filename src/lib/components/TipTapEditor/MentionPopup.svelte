@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Command, CommandItem, CommandList } from "$lib/components/ui/command"
-  import { selectedTagIds } from "$stores/tags"
+  import { selectedTagIds } from "$lib/stores/tags"
   import { X } from "lucide-svelte"
   import { onDestroy, onMount } from "svelte"
 

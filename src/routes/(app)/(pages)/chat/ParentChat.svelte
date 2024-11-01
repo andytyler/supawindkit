@@ -1,7 +1,7 @@
 <script lang="ts">
   import TipTapEditor from "$lib/components/TipTapEditor/TipTapEditor.svelte"
   import MessagesContainer from "$lib/components/ui/MessagesContainer.svelte"
-  import { selectedTagIds } from "$stores/tags"
+  import { selectedTagIds } from "$lib/stores/tags"
   import { onMount } from "svelte"
 
   let messages: {

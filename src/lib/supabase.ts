@@ -1,3 +1,4 @@
+import { SUPABASE_SERVICE_ROLE_KEY } from "$env/static/private"
 import {
   PUBLIC_SUPABASE_ANON_KEY,
   PUBLIC_SUPABASE_URL,
@@ -21,5 +22,8 @@ if (!supabaseUrl || !supabaseKey) {
 // console.log("Supabase Key:", PUBLIC_SUPABASE_ANON_KEY)
 
 const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey)
+
+
+export const serviceRoleClient = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 export default supabase

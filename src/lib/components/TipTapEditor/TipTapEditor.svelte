@@ -2,7 +2,7 @@
   import { browser } from "$app/environment"
   import { Button } from "$components/ui/button"
   import { Separator } from "$components/ui/separator"
-  import { selectedTagIds } from "$stores/tags"
+  import { selectedTagIds } from "$lib/stores/tags"
   import { Editor } from "@tiptap/core"
   import { ChevronRight } from "lucide-svelte"
   import { onDestroy, onMount } from "svelte"
