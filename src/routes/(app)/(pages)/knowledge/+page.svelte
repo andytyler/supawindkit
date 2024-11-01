@@ -51,7 +51,7 @@
     <ResizablePane defaultSize={1 / 3} minSize={30}>
       <div class="flex items-center justify-between px-4 py-4">
         <div class="flex items-center gap-4">
-          <h1 class="text-xl font-bold">Chat</h1>
+          <h1 class="text-xl font-bold">Execute</h1>
         </div>
 
         <DropdownMenu.Root>

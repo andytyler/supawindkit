@@ -34,7 +34,9 @@
 
     // Prepare the system prompt
     const systemPrompt = exampleFormat
-      ? `You are a helpful assistant. When formatting your response, use this example as a template for the structure:\n\n${exampleFormat}\n\nMaintain a similar format while providing relevant content.`
+      ? `You are a helpful assistant. When formatting your response, use this example as a template for the structure:\n\n
+      ${exampleFormat}\n\n
+      Maintain a similar format while providing relevant content.`
       : "You are a helpful assistant. You have access to snippets, for context, in the user input. Use them to answer the user's question, briefly."
 
     // Send the message to the server and handle streaming

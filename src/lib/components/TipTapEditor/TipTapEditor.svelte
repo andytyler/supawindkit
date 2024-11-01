@@ -4,7 +4,7 @@
   import { Separator } from "$components/ui/separator"
   import { selectedTagIds } from "$lib/stores/tags"
   import { Editor } from "@tiptap/core"
-  import { ChevronRight } from "lucide-svelte"
+  import { ChevronRight, X } from "lucide-svelte"
   import { onDestroy, onMount } from "svelte"
   import type { Unsubscriber } from "svelte/store"
   import TurndownService from "turndown"
@@ -14,6 +14,7 @@
   export let onSendMessage: (
     content: string,
     exampleOutput: string,
+    selectedTagIds: number[],
   ) => Promise<void>
   export let allTagIds: { id: number; title: string }[] = []
 
@@ -179,7 +180,7 @@
     loading = true
     const markdownContent = turndownService.turndown(userInput)
 
-    await onSendMessage(markdownContent, exampleOutput)
+    await onSendMessage(markdownContent, exampleOutput, $selectedTagIds)
 
     // Clear the editor content
     userInput = ""
@@ -241,21 +242,7 @@
                       )
                     }}
                   >
-                    <!-- Close Icon -->
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path d="M18 6 6 18" />
-                      <path d="m6 6 12 12" />
-                    </svg>
+                    <X size={14} />
                   </button>
                 </div>
               {/if}
