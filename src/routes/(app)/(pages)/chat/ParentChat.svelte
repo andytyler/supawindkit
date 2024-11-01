@@ -1,8 +1,8 @@
 <script lang="ts">
+  import TipTapEditor from "$lib/components/TipTapEditor/TipTapEditor.svelte"
+  import MessagesContainer from "$lib/components/ui/MessagesContainer.svelte"
   import { selectedTagIds } from "$stores/tags"
   import { onMount } from "svelte"
-  import MessagesContainer from "./MessagesContainer.svelte"
-  import TipTapEditor from "./TipTapEditor.svelte"
 
   let messages: {
     role: "user" | "assistant"

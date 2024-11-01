@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ActivityCanvas from "$components/canvas/ActivityCanvas.svelte"
   import { Button } from "$components/ui/button"
   import * as Avatar from "$lib/components/ui/avatar"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
@@ -9,7 +10,6 @@
   } from "$lib/components/ui/resizable"
   import { Separator } from "$lib/components/ui/separator"
   import type { PageData } from "../chat/$types"
-  import IngestCrawl from "../chat/IngestCrawl.svelte"
   import ParentChat from "../chat/ParentChat.svelte"
 
   export let data: PageData
@@ -33,15 +33,22 @@
 
 <div class="flex flex-col md:flex-row gap-4 h-full">
   <PaneGroup direction="horizontal">
-    <ResizablePane defaultSize={1 / 3} minSize={30}>
-      <div class="flex items-center justify-between px-4 py-4">
-        <h1 class="text-xl font-bold">Knowledge Base</h1>
+    <ResizablePane defaultSize={2 / 3} minSize={30}>
+      <div class="h-full w-full bg-background relative">
+        <!-- Canvas background with dots -->
+        <div
+          class="absolute inset-0"
+          style="background-image: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.05) 2px, transparent 0); background-size: 24px 24px;"
+        />
+
+        <!-- Your canvas content goes here -->
+        <div class="h-[calc(100vh-4rem)]">
+          <ActivityCanvas />
+        </div>
       </div>
-      <Separator />
-      <IngestCrawl />
     </ResizablePane>
     <ResizableHandle withHandle />
-    <ResizablePane defaultSize={2 / 3} minSize={30}>
+    <ResizablePane defaultSize={1 / 3} minSize={30}>
       <div class="flex items-center justify-between px-4 py-4">
         <div class="flex items-center gap-4">
           <h1 class="text-xl font-bold">Chat</h1>

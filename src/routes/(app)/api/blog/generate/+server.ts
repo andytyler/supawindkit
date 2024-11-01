@@ -1,5 +1,5 @@
 import supabase from '$lib/supabase';
-import { askChatGPTNoStream } from '../../../(pages)/chat/llm';
+import { askChatGPTNoStream } from '../../../../../lib/server/llm';
 import type { RequestHandler } from './$types';
 
 

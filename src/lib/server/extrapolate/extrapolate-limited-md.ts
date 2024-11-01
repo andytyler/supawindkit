@@ -203,7 +203,7 @@ export async function saveContent(url: string, content: string, title: string, u
   }
 }
 
-export async function searchSimilarContent(user: User, query: string, limit: number = 5, tagIds: number[] = []): Promise<any[]> {
+export async function searchSimilarContent(user: User, query: string, limit: number = 5, tagIds: string[] = []): Promise<any[]> {
   try {
     // Generate embedding for the query
     const queryEmbedding = await getEmbedding(query);
@@ -212,22 +212,27 @@ export async function searchSimilarContent(user: User, query: string, limit: num
       throw new Error("User not logged in");
     }
 
-
-    console.log(`🔍  Performing similarity search for query: ${query} with limit: ${limit} and tagIds: ${tagIds}`)
+    console.log(`🔍  Performing similarity search for query: ${query} with limit: ${limit} and tagIds: ${tagIds}`);
+    
+    // Ensure tagIds is an array, even if empty
+    const parentIds = Array.isArray(tagIds) ? tagIds : [];
+    
     // Perform the similarity search using the generated embedding
     const { data, error } = await supabase.rpc('match_documents', {
       query_embedding: queryEmbedding,
-      match_threshold: 0.8, // Adjust this threshold as needed
+      match_threshold: 0.7,
       match_count: limit,
       user_id_input: user.id,
-      parent_ids: tagIds
+      parent_ids: parentIds // Make sure this matches the exact parameter name expected by your stored procedure
     });
 
     if (error) {
+      console.error('Supabase RPC error:', error);
       throw new Error(`Error performing similarity search: ${error.message}`);
     }
 
-    return data;
+    // Ensure we return an array even if data is null
+    return data || [];
   } catch (error) {
     console.error('Error in searchSimilarContent:', error);
     return [];

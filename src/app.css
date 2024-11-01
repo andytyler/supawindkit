@@ -40,25 +40,25 @@ button[disabled].authBtn::before {
     --radius: 0.5rem;
   }
   .dark {
-    --background: 20 14.3% 4.1%;
-    --foreground: 0 0% 95%;
-    --card: 24 9.8% 10%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 142.1 70.6% 45.3%;
-    --primary-foreground: 144.9 80.4% 10%;
-    --secondary: 240 3.7% 15.9%;
+    --background: 240 10% 7.5%; /* #131315 */
+    --foreground: 0 0% 98%;
+    --card: 240 10% 9.5%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 8.5%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 142.1 70% 45%;
+    --primary-foreground: 142.1 70% 7%;
+    --secondary: 240 9% 13%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 12 6.5% 15.1%;
+    --muted: 240 10% 12%;
+    --muted-foreground: 240 5% 75%;
+    --accent: 240 9% 13%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 142.4 71.8% 29.2%;
+    --destructive: 0 84% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 9% 13%;
+    --input: 240 9% 13%;
+    --ring: 142.1 70% 45%;
   }
 }
 

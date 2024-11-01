@@ -1,6 +1,6 @@
 <script lang="ts">
+  import Snippet from "$lib/components/ui/Snippet.svelte"
   import { marked } from "marked"
-  import Snippet from "./Snippet.svelte"
 
   export let messages: {
     role: "user" | "assistant"

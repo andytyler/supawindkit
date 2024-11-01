@@ -3,7 +3,6 @@ import type { RequestHandler } from "./$types"
 
 import { NOTION_API_KEY } from '$env/static/private'
 import { getNotionPageAsMarkdown } from '$lib/connectors/notion'
-import { saveContent } from '$lib/server/extrapolate/extrapolate-limited-md'
 import { Client } from "@notionhq/client"
 
 
@@ -53,7 +52,7 @@ export const GET: RequestHandler = async ({ request, locals, url }) => {
     return json({ success: true, markdown })
   } catch (error) {
     console.error('Crawl error:', error)
-    return json({ success: false, error: 'SUPAFETCH ERROR: An error occurred while making a Notion API request.' }, { status: 500 })
+    return json({ success: false, error: 'Notion ERROR: An error occurred while making a Notion API request.' }, { status: 500 })
   }
 }
 
@@ -100,7 +99,7 @@ export const POST = async ({ request, locals, url }) => {
     const markdown = await getNotionPageAsMarkdown(page.id);
     markdownArray.push(markdown)
     // save each item in the markdown array to the database
-    saveContent(page.id, markdown, "Notion", "3a5b8f15-59f8-4e62-996e-f5e0e50b8b26")
+    // saveContent(page.id, markdown, "Notion", "3a5b8f15-59f8-4e62-996e-f5e0e50b8b26")
   }
 
   try {

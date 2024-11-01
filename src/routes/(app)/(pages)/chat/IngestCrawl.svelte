@@ -1,8 +1,8 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation"
   import * as Card from "$lib/components/ui/card"
+  import Snippet from "$lib/components/ui/Snippet.svelte"
   import * as Tabs from "$lib/components/ui/tabs"
-  import Snippet from "./Snippet.svelte"
   import Tags from "./Tags.svelte"
 
   let loading = false

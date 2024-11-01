@@ -1,6 +1,6 @@
 import { searchSimilarContent } from '$lib/server/extrapolate/extrapolate-limited-md';
 import { json } from '@sveltejs/kit';
-import { askChatGPT } from '../../(pages)/chat/llm';
+import { askChatGPT } from '../../../../lib/server/llm';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, locals, url }) => {
