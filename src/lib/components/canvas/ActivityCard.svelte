@@ -1,9 +1,23 @@
 <script lang="ts">
+  import {
+    updateActivityPosition,
+    updateActivityZIndex,
+  } from "$lib/stores/activityStore"
   import type { Activity } from "$lib/types"
   import { draggable } from "@neodrag/svelte"
   import { fade } from "svelte/transition"
   import GmailComposerCard from "./GmailComposerCard.svelte"
+
   export let activity: Activity
+
+  function handleDragEnd(e: CustomEvent) {
+    const { offsetX, offsetY } = e.detail
+    updateActivityPosition(activity.id, { x: offsetX, y: offsetY })
+  }
+
+  function handleClick() {
+    updateActivityZIndex(activity.id, activity.zIndex + 1)
+  }
 </script>
 
 <div
@@ -21,8 +35,9 @@
   transition:fade
   role="button"
   tabindex="0"
-  on:click
-  on:keydown={(e) => e.key === "Enter" && e.target}
+  on:neodrag:end={handleDragEnd}
+  on:click={handleClick}
+  on:keydown={(e) => e.key === "Enter" && handleClick()}
 >
   <div
     class="handle bg-muted p-2 rounded-t-lg cursor-move flex items-center justify-between"

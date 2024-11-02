@@ -2,11 +2,30 @@
   import { Button } from "$components/ui/button"
   import { Input } from "$components/ui/input"
   import { Separator } from "$components/ui/separator"
+  import { activityStore } from "$lib/stores/activityStore"
   import { Send, Trash2 } from "lucide-svelte"
 
   export let subject: string = ""
   export let to: string = ""
   export let content: string = ""
+  export let activityId: string
+
+  function updateEmailContent() {
+    activityStore.update((activities) =>
+      activities.map((activity) =>
+        activity.id === activityId
+          ? {
+              ...activity,
+              content: {
+                to,
+                subject,
+                body: content,
+              },
+            }
+          : activity,
+      ),
+    )
+  }
 </script>
 
 <div class="w-full bg-card">
