@@ -25,9 +25,9 @@ export async function single_shot(
 	goal: string,
 	site: string,
 	inputPageActionableElements: any,
-	page: Page
+	page: Page,
+	run_id: string
 ) {
-	let run_id = crypto.randomUUID();
 	let chats: EventType[] = [];
 	// need to add a get page part to getHtml, where it will be able to give you the active page
 	// to pass into the next function instead of creating a new page each time.
@@ -38,17 +38,17 @@ export async function single_shot(
 	let start_screenshot = previousScreenshot;
 
 	if (shouldStop) {
-		logEvent({ run_id, type: "stop", action: null, message: "Process stopped by user" });
+		logEvent({ run_id, type: "stop", action: null, message: "Process stopped by user" }, run_id);
 		return { success: false, message: "Process stopped by user" };
 	}
 
 	if (!start_screenshot || !page) {
 		const { evaluation_result, page: newPage } = await getHtml(site, { set: "js", evalFunction: getScreenshot, keepBrowserOpen: true });
 
-		logEvent({ run_id, type: "start", action: null, message: site });
-		logEvent({ run_id, type: "url", action: null, message: site });
-		logEvent({ run_id, type: "goal", action: null, message: goal });
-		logEvent({ run_id, type: "screenshot", action: null, message: evaluation_result.screenshot_url });
+		logEvent({ run_id, type: "start", action: null, message: site }, run_id);
+		logEvent({ run_id, type: "url", action: null, message: site }, run_id);
+		logEvent({ run_id, type: "goal", action: null, message: goal }, run_id);
+		logEvent({ run_id, type: "screenshot", action: null, message: evaluation_result.screenshot_url }, run_id);
 		// addChat({ run_id, type: "other", content: JSON.stringify(evaluation_result.clickableElements) });
 
 		start_screenshot = evaluation_result.screenshot_url;
@@ -57,7 +57,7 @@ export async function single_shot(
 	}
 
 	if (!start_screenshot || !page) {
-		logEvent({ run_id, type: "error", action: null, message: "No start_screenshot found" });
+		logEvent({ run_id, type: "error", action: null, message: "No start_screenshot found" }, run_id);
 		return {
 			success: false,
 			chats_out: chats,
@@ -135,12 +135,12 @@ ${JSON.stringify(actionableElements)}
 	// what the button does and where the button is, including the page its on.
 	// this is to build up an understanding of website and prevent wasted repetition.
 
-	logEvent({ run_id, type: "prompt", action: null, message: decideOnAction });
+	logEvent({ run_id, type: "prompt", action: null, message: decideOnAction }, run_id);
 
 	const chatCompletion = await generateAction(decideOnAction, start_screenshot);
 	const actionResponse = chatCompletion.choices[0]?.message?.content || "";
 
-	logEvent({ run_id, type: "response", action: null, message: actionResponse });
+	logEvent({ run_id, type: "response", action: null, message: actionResponse }, run_id);
 
 	const llmActionResponse: InteligentAction = JSON.parse(actionResponse);
 
@@ -206,7 +206,7 @@ ${JSON.stringify(actionableElements)}
 								type: "click",
 								action: llmActionResponse,
 								message: JSON.stringify({ ...llmActionResponse, screenshot: start_screenshot }),
-							});
+							}, run_id);
 						} else {
 							console.log("Element not found at the specified coordinates.");
 						}
@@ -218,7 +218,7 @@ ${JSON.stringify(actionableElements)}
 							type: "click",
 							action: llmActionResponse,
 							message: JSON.stringify({ ...llmActionResponse, screenshot: start_screenshot }),
-						});
+						}, run_id);
 					}
 				} else if (llmActionResponse.action.type === "scroll" && llmActionResponse.action.scroll) {
 					logEvent({
@@ -226,7 +226,7 @@ ${JSON.stringify(actionableElements)}
 						type: "scroll",
 						action: llmActionResponse,
 						message: JSON.stringify({ ...llmActionResponse, screenshot: start_screenshot }),
-					});
+					}, run_id);
 					const scrollDistance =
 						llmActionResponse.action.scroll.direction === "up"
 							? -llmActionResponse.action.scroll.distance
@@ -240,7 +240,7 @@ ${JSON.stringify(actionableElements)}
 						type: "type",
 						action: llmActionResponse,
 						message: JSON.stringify({ ...llmActionResponse, screenshot: start_screenshot }),
-					});
+					}, run_id);
 					await page.keyboard.type(llmActionResponse.action.text);
 				} else if (llmActionResponse.action.type === "request_user_input" && llmActionResponse.action.prompt) {
 					logEvent({
@@ -248,7 +248,7 @@ ${JSON.stringify(actionableElements)}
 						type: "request_user_input",
 						action: llmActionResponse,
 						message: llmActionResponse.action.prompt,
-					});
+					}, run_id);
 
 					// Create a promise that will be resolved when user input is received
 					const userInput = await new Promise<string>((resolve) => {
@@ -261,7 +261,7 @@ ${JSON.stringify(actionableElements)}
 						type: "user_input",
 						action: null,
 						message: userInput,
-					});
+					}, run_id);
 
 					// Type the user's input into the focused element
 					if (userInput) {
@@ -296,7 +296,7 @@ ${JSON.stringify(actionableElements)}
 		}
 
 		if (!evaluation_result_2) {
-			logEvent({ run_id, type: "error", action: null, message: "Failed to get evaluation result after action" });
+			logEvent({ run_id, type: "error", action: null, message: "Failed to get evaluation result after action" }, run_id);
 			return {
 				success: false,
 				chats_out: chats,
@@ -307,12 +307,12 @@ ${JSON.stringify(actionableElements)}
 		const screenshot_url = evaluation_result_2.screenshot_url || start_screenshot;
 		const clickableElements = evaluation_result_2.clickableElements || actionableElements;
 
-		logEvent({ run_id, type: "screenshot", action: null, message: screenshot_url });
-		logEvent({ run_id, type: "url", action: null, message: end_url });
-		logEvent({ run_id, type: "loop_end", action: null, message: "LOOP END" });
+		logEvent({ run_id, type: "screenshot", action: null, message: screenshot_url }, run_id);
+		logEvent({ run_id, type: "url", action: null, message: end_url }, run_id);
+		logEvent({ run_id, type: "loop_end", action: null, message: "LOOP END" }, run_id);
 
 		// continue the loop
-		await single_shot([...previousActions, llmActionResponse], screenshot_url, goal, end_url, clickableElements, page);
+		await single_shot([...previousActions, llmActionResponse], screenshot_url, goal, end_url, clickableElements, page, run_id);
 	}
 	return {
 		success: true,

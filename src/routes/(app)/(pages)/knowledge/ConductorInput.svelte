@@ -1,6 +1,5 @@
 <script lang="ts">
   import TipTapEditor from "$lib/components/TipTapEditor/TipTapEditor.svelte"
-  import MessagesContainer from "$lib/components/ui/MessagesContainer.svelte"
   import { onMount } from "svelte"
 
   let messages: {
@@ -32,21 +31,12 @@
     // Append user's message
     messages = [...messages, { role: "user", content }]
 
-    // Prepare the system prompt
-    const systemPrompt = exampleFormat
-      ? `You are a helpful assistant. When formatting your response, use this example as a template for the structure:\n\n
-      ${exampleFormat}\n\n
-      Maintain a similar format while providing relevant content.`
-      : "You are a helpful assistant. You have access to snippets, for context, in the user input. Use them to answer the user's question, briefly."
-
-    // Send the message to the server and handle streaming
     try {
       const response = await fetch("/api/conductor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userInput: content,
-          systemPrompt,
           tagIds: selectedTagIds,
           exampleOutput: exampleFormat || null,
         }),
@@ -70,18 +60,7 @@
           if (streamComplete) break
 
           const chunk = decoder.decode(result.value)
-          const snippetsMarker = "### Snippets Context"
-          if (chunk.includes(snippetsMarker)) {
-            const [answerPart, snippetsPart] = chunk.split(snippetsMarker)
-            assistantMessage.content += answerPart
-            try {
-              assistantMessage.snippets = JSON.parse(snippetsPart)
-            } catch (e) {
-              console.error("Failed to parse snippets:", e)
-            }
-          } else {
-            assistantMessage.content += chunk
-          }
+          assistantMessage.content += chunk
 
           // Update messages to trigger reactivity
           messages = [...messages]
@@ -104,7 +83,7 @@
 
 <div class="flex flex-col h-full">
   <!-- Messages Container -->
-  <MessagesContainer {messages} />
+  <!-- <MessagesContainer {messages} /> -->
 
   <!-- TipTap Editor -->
   <TipTapEditor onSendMessage={handleSendMessage} {allTagIds} />

@@ -5,6 +5,9 @@
     updateActivityZIndex,
   } from "$lib/stores/activityStore"
   import type { Activity } from "$lib/types"
+  import ChatsStream from "../../../routes/(app)/(pages)/enigmatic-action/ChatsStream.svelte"
+  import Console from "../../../routes/(app)/(pages)/enigmatic-action/PreviewPane.svelte"
+  import UserInputModal from "../../../routes/(app)/(pages)/enigmatic-action/UserInputModal.svelte"
   import ActivityCard from "./ActivityCard.svelte"
 
   // Subscribe to the store
@@ -31,7 +34,11 @@
   />
 
   <!-- Activities container -->
-  <div class="relative h-full w-full">
+  <div class="flex flex-row w-full">
+    <UserInputModal />
+    <ChatsStream />
+    <Console />
+    <div />
     {#each $activityStore as activity (activity.id)}
       <ActivityCard
         {activity}

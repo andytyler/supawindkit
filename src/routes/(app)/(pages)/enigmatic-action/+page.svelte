@@ -19,7 +19,12 @@
 		eventSource = new EventSource("/api/chat-stream");
 		eventSource.onmessage = (event) => {
 			const newChat = JSON.parse(event.data);
-			chatStore.update((chats) => [...chats, newChat]);
+			const run_id = newChat.run_id;
+
+			chatStore.update((store) => {
+				const chats = store[run_id] || [];
+				return { ...store, [run_id]: [...chats, newChat] };
+			});
 
 			// Check for user input requests
 			if (newChat.type === "request_user_input") {

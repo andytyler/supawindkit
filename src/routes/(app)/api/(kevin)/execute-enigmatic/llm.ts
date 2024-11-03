@@ -1,11 +1,9 @@
-import { OpenAI } from "openai";
-import { z } from "zod";
-import { zodResponseFormat } from "openai/helpers/zod";
 import { InteligentAction } from "$lib/types";
+import { OpenAI } from "openai";
+import { zodResponseFormat } from "openai/helpers/zod";
 
 // In a server-side file
 import { env } from "$env/dynamic/private";
-import { VIEWPORT_SIZE } from "./puppeteer";
 
 const openai = new OpenAI({
 	apiKey: env.OPENAI_API_KEY,
@@ -54,6 +52,8 @@ export async function AskChatGPTWithSystemPromptAndImage(systemPrompt: string, i
 	}
 }
 
+
+
 export async function generateAction(systemPrompt: string, imgUrl: string) {
 	const response = await openai.chat.completions.create({
 		model: "gpt-4o-2024-08-06",
@@ -79,3 +79,6 @@ export async function generateAction(systemPrompt: string, imgUrl: string) {
 	});
 	return response;
 }
+
+
+

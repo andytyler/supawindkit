@@ -1,7 +1,8 @@
 import { OpenAI } from "openai";
-
+import { z } from "zod";
 // In a server-side file
 import { env } from "$env/dynamic/private";
+import { zodResponseFormat } from "openai/helpers/zod.mjs";
 
 const openai = new OpenAI({
 	apiKey: env.OPENAI_API_KEY,
@@ -97,4 +98,34 @@ export async function askChatGPTNoStream(systemPrompt: string, userInput: string
 			error: 'No response from ChatGPT',
 		};
 	}
+}
+
+
+export async function askGPTWithZod<T>(
+  systemPrompt: string,
+  userPrompt: string,
+  zodSchema: z.ZodType<T>,
+  format: string
+) {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      response_format: zodResponseFormat(zodSchema, format),
+      messages: [
+        {
+          role: "system", 
+          content: systemPrompt
+        },
+        {
+          role: "user",
+          content: userPrompt
+        }
+      ],
+      max_tokens: 4096
+    });
+    return response;
+  } catch (error) {
+    console.error("Error in askGPTWithZod:", error);
+    return null;
+  }
 }

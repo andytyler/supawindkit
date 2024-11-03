@@ -1,8 +1,4 @@
 <script lang="ts">
-  import ActivityCanvas from "$components/canvas/ActivityCanvas.svelte"
-  import { Button } from "$components/ui/button"
-  import * as Avatar from "$lib/components/ui/avatar"
-  import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import {
     PaneGroup,
     ResizableHandle,
@@ -10,25 +6,77 @@
   } from "$lib/components/ui/resizable"
   import { Separator } from "$lib/components/ui/separator"
   import type { PageData } from "../chat/$types"
-  import ParentChat from "../chat/ParentChat.svelte"
+  import ActivityCanvas from "./ActivityCanvas.svelte"
 
   export let data: PageData
-  // You'll need to get these from your data/props
-  export let user = {
-    name: "John Doe",
-    email: "john@example.com",
-    imageUrl: "https://github.com/shadcn.png", // Example avatar URL
+
+  import { chatStore } from "$lib/stores/chatStore"
+  import { executions } from "$lib/stores/executionStore"
+  import { displayUserInputPrompt } from "$lib/stores/userInputStore"
+  import { onDestroy, onMount } from "svelte"
+  import ConductorInput from "./ConductorInput.svelte"
+
+  let loading = false
+  let eventSource: EventSource | null = null
+
+  function connectEventSource() {
+    if (eventSource) {
+      eventSource.close()
+    }
+    eventSource = new EventSource("/api/chat-stream")
+    eventSource.onmessage = (event) => {
+      const newChat = JSON.parse(event.data)
+      chatStore.update((chats) => {
+        const existingChats = chats[newChat.run_id] || []
+        return {
+          ...chats,
+          [newChat.run_id]: [...existingChats, newChat],
+        }
+      })
+
+      executions.update((currentExecutions) => {
+        const executionExists = currentExecutions.some(
+          (e) => e.run_id === newChat.run_id,
+        )
+        if (!executionExists) {
+          return [
+            ...currentExecutions,
+            {
+              run_id: newChat.run_id,
+              goal: newChat.goal || "",
+              site: newChat.site || "",
+              status: "running",
+            },
+          ]
+        }
+        return currentExecutions
+      })
+
+      // Check for user input requests
+      if (newChat.type === "request_user_input") {
+        displayUserInputPrompt(newChat.message, newChat.run_id)
+      }
+    }
+    eventSource.onerror = (error) => {
+      console.error("SSE error:", error)
+      if (eventSource) {
+        eventSource.close()
+        eventSource = null
+      }
+      // Attempt to reconnect after a delay
+      setTimeout(connectEventSource, 2000)
+    }
   }
 
-  // let selectedTags: number[] = []
+  onMount(() => {
+    connectEventSource()
+  })
 
-  // function handleTagsSelected(event: CustomEvent<{ selectedTags: number[] }>) {
-  //   selectedTags = event.detail.selectedTags
-  //   // Update the chat component with new tags
-  //   if (chat) {
-  //     chat.updateTags(selectedTags)
-  //   }
-  // }
+  onDestroy(() => {
+    if (eventSource) {
+      eventSource.close()
+    }
+  })
 </script>
 
 <div class="flex flex-col md:flex-row gap-4 h-full">
@@ -53,61 +101,14 @@
         <div class="flex items-center gap-4">
           <h1 class="text-xl font-bold">Execute</h1>
         </div>
-
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild let:builder>
-            <Button
-              variant="ghost"
-              builders={[builder]}
-              class="relative flex items-center gap-2 h-6 px-3 rounded-full hover:bg-accent"
-            >
-              <Avatar.Root class="h-8 w-8">
-                <Avatar.Image
-                  src={user.imageUrl}
-                  alt={user.name}
-                  class="object-cover"
-                />
-                <Avatar.Fallback class="bg-muted"
-                  >{user.name.charAt(0)}</Avatar.Fallback
-                >
-              </Avatar.Root>
-              <span class="text-sm font-medium">{user.name}</span>
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content class="w-56" align="end">
-            <DropdownMenu.Label class="font-normal">
-              <div class="flex flex-col space-y-1">
-                <p class="text-sm font-medium leading-none">{user.name}</p>
-                <p class="text-xs leading-none text-muted-foreground">
-                  {user.email}
-                </p>
-              </div>
-            </DropdownMenu.Label>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Group>
-              <DropdownMenu.Item>
-                <a href="/account/settings">Profile</a>
-              </DropdownMenu.Item>
-              <DropdownMenu.Item>
-                <a href="/account/billing">Billing</a>
-              </DropdownMenu.Item>
-              <DropdownMenu.Item>
-                <a href="/account/settings">Settings</a>
-              </DropdownMenu.Item>
-            </DropdownMenu.Group>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item>
-              <a href="/account/sign_out">Log out</a>
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
       </div>
       <Separator />
 
       <div class="">
         <!-- <MessagesContainer {messages} />
         <TipTapInput /> -->
-        <ParentChat />
+        <!-- <ParentChat /> -->
+        <ConductorInput />
       </div>
     </ResizablePane>
   </PaneGroup>
