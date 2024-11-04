@@ -1,9 +1,27 @@
 /** @type {import('tailwindcss').Config} */
+import aspectRatio from "@tailwindcss/aspect-ratio"
 import { fontFamily } from "tailwindcss/defaultTheme"
+import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette"
+
+function addVariablesForColors({ addBase, theme }) {
+  let allColors = flattenColorPalette(theme("colors"))
+  let newVars = Object.fromEntries(
+    Object.entries(allColors).map(([key, val]) => [`--${key}`, val]),
+  )
+
+  addBase({
+    ":root": newVars,
+  })
+}
 
 /** @type {import('tailwindcss').Config} */
 const config = {
-  plugins: [require("@tailwindcss/typography"), require("daisyui")],
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("daisyui"),
+    aspectRatio,
+    addVariablesForColors,
+  ],
 
   daisyui: {
     themes: [
@@ -87,6 +105,19 @@ const config = {
       },
       fontFamily: {
         sans: [...fontFamily.sans],
+      },
+      animation: {
+        shimmer: "shimmer 8s infinite",
+      },
+      keyframes: {
+        shimmer: {
+          "0%, 90%, 100%": {
+            "background-position": "calc(-100% - var(--shimmer-width)) 0",
+          },
+          "30%, 60%": {
+            "background-position": "calc(100% + var(--shimmer-width)) 0",
+          },
+        },
       },
     },
   },

@@ -1,14 +1,10 @@
-import { SUPABASE_SERVICE_ROLE_KEY } from "$env/static/private"
 import {
   PUBLIC_SUPABASE_ANON_KEY,
   PUBLIC_SUPABASE_URL,
 } from "$env/static/public"
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 
-// Load environment variables from .env.local file
-// config({ path: path.resolve(__dirname, "../../.env.local") })
-
-// Initialize Supabase client
+// Initialize Supabase client for client-side operations
 const supabaseUrl: string = PUBLIC_SUPABASE_URL
 const supabaseKey: string = PUBLIC_SUPABASE_ANON_KEY
 
@@ -18,12 +14,7 @@ if (!supabaseUrl || !supabaseKey) {
   )
 }
 
-// console.log("Supabase URL:", PUBLIC_SUPABASE_URL)
-// console.log("Supabase Key:", PUBLIC_SUPABASE_ANON_KEY)
+const supabaseClient: SupabaseClient = createClient(supabaseUrl, supabaseKey)
 
-const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey)
+export default supabaseClient
 
-
-export const serviceRoleClient = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
-export default supabase

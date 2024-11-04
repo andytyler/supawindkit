@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { activateStopFlag } from "../action";
+import { activateStopFlag } from "../../../../../../lib/server/kevin/action";
 import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ fetch }) => {

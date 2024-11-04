@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Execution } from "$lib/stores/executionStore"
+  import { deleteExecution } from "$lib/stores/executionStore"
   import { draggable } from "@neodrag/svelte"
   import { ChevronDown, ChevronUp, GripVertical } from "lucide-svelte"
 
@@ -12,6 +13,12 @@
   }
 
   export let execution: Execution
+
+  function handleDelete() {
+    if (confirm("Are you sure you want to delete this execution?")) {
+      deleteExecution(execution.run_id)
+    }
+  }
 </script>
 
 <div
@@ -40,6 +47,9 @@
       {#if collapsed}
         <ChevronDown class="h-5 w-5 text-muted-foreground" />
       {:else}
+        <button on:click={handleDelete} class="text-red-500 hover:text-red-700">
+          Delete
+        </button>
         <ChevronUp class="h-5 w-5 text-muted-foreground" />
       {/if}
     </button>

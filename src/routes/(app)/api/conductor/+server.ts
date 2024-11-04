@@ -2,7 +2,7 @@ import { askGPTWithZod } from '$lib/server/llm';
 import { executions } from '$lib/stores/executionStore';
 import { ActivitySchema } from '$types/llm-schemas';
 import { v4 as uuidv4 } from 'uuid';
-import { single_shot } from '../(kevin)/execute-enigmatic/action';
+import { single_shot } from '../../../../lib/server/kevin/action';
 import type { RequestHandler } from './$types';
 
 const SYSTEM_PROMPT = `
@@ -54,6 +54,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                   goal: activity.goal,
                   site: activity.start_url,
                   status: 'running',
+                  payload: {
+                    activity
+                  },
                 },
               ]);
               // Start the execution process in the background

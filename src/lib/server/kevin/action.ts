@@ -25,7 +25,7 @@ export async function single_shot(
 	goal: string,
 	site: string,
 	inputPageActionableElements: any,
-	page: Page,
+	page: Page | null	,
 	run_id: string
 ) {
 	let chats: EventType[] = [];

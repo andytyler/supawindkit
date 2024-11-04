@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { single_shot } from "./action.js";
+import { single_shot } from "../../../../../lib/server/kevin/action.js";
 
 export async function POST({ request }) {
 	const { site, goal, run_id } = await request.json();
@@ -13,7 +13,7 @@ export async function POST({ request }) {
 
 async function process(site: string, goal: string, run_id: string) {
 	try {
-		await single_shot([], null, goal, site, [], undefined, run_id);
+		await single_shot([], null, goal, site, [], null, run_id);
 		// Optionally, handle completion
 	} catch (error) {
 		console.error("Error in process:", error);
