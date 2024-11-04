@@ -2,32 +2,56 @@
   import type { Execution } from "$lib/stores/executionStore"
   import { deleteExecution } from "$lib/stores/executionStore"
   import { draggable } from "@neodrag/svelte"
-  import { ChevronDown, ChevronUp, GripVertical } from "lucide-svelte"
+  import { ChevronDown, ChevronUp, GripVertical, Trash2, StopCircle } from "lucide-svelte"
 
-  // Reactive state for collapsed/expanded
+  export let execution: Execution
   $: collapsed = false
 
-  // Toggle collapse state
   function toggleCollapse() {
     collapsed = !collapsed
   }
 
-  export let execution: Execution
+  async function handleStop() {
+    try {
+      const response = await fetch("/api/execute-enigmatic/stop", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ run_id: execution.run_id }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to stop execution");
+      }
+    } catch (error) {
+      console.error("Error stopping execution:", error);
+    }
+  }
 
-  function handleDelete() {
-    if (confirm("Are you sure you want to delete this execution?")) {
-      deleteExecution(execution.run_id)
+  async function handleDelete() {
+    if (!confirm("Are you sure you want to delete this execution?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/conductor/executions/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ run_id: execution.run_id }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete execution");
+      }
+    } catch (error) {
+      console.error("Error deleting execution:", error);
     }
   }
 </script>
 
-<div
-  use:draggable
-  class="absolute top-4 left-4 bg-card border border-border rounded-lg shadow-lg max-w-min hover:shadow-xl"
->
-  <!-- Header with handle and collapse button -->
+<div use:draggable class="absolute top-4 left-4 bg-card border border-border rounded-lg shadow-lg max-w-min hover:shadow-xl">
   <div class="flex items-center justify-between bg-muted rounded-t-lg">
-    <!-- Drag Handle -->
     <div class="flex items-center gap-2 p-1">
       <GripVertical class="cursor-grab h-5 w-5 text-muted-foreground" />
       {#if execution.status === "running"}
@@ -41,24 +65,41 @@
         {execution.run_id}
       </h2>
     </div>
-
-    <!-- Collapse Button -->
-    <button on:click={toggleCollapse} class="focus:outline-none px-2">
-      {#if collapsed}
-        <ChevronDown class="h-5 w-5 text-muted-foreground" />
-      {:else}
-        <button on:click={handleDelete} class="text-red-500 hover:text-red-700">
-          Delete
+    <div class="flex items-center gap-2 pr-2">
+      {#if execution.status === "running"}
+        <button 
+          on:click={handleStop}
+          class="p-1 hover:bg-background/80 rounded-full"
+          title="Stop Execution"
+        >
+          <StopCircle class="h-5 w-5 text-red-500" />
         </button>
-        <ChevronUp class="h-5 w-5 text-muted-foreground" />
       {/if}
-    </button>
+      <button 
+        on:click={handleDelete}
+        class="p-1 hover:bg-background/80 rounded-full"
+        title="Delete Execution"
+      >
+        <Trash2 class="h-5 w-5 text-muted-foreground hover:text-red-500" />
+      </button>
+      <button 
+        on:click={toggleCollapse}
+        class="p-1 hover:bg-background/80 rounded-full"
+      >
+        {#if collapsed}
+          <ChevronDown class="h-5 w-5 text-muted-foreground" />
+        {:else}
+          <ChevronUp class="h-5 w-5 text-muted-foreground" />
+        {/if}
+      </button>
+    </div>
   </div>
 
-  <!-- Content Slot -->
   {#if !collapsed}
-    <div class="">
-      <slot />
-    </div>
+    <slot />
   {/if}
 </div>
+
+<style>
+  /* Add any additional styles here */
+</style>

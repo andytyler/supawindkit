@@ -1,4 +1,4 @@
-import { serviceRoleClient } from "$lib/supabase";
+import serviceRoleClient from "$lib/server/supabase";
 import type { Page } from "puppeteer";
 
 export const VIEWPORT_SIZE = 512; // also edit in Console.svelte

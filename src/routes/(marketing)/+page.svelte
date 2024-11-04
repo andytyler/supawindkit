@@ -33,7 +33,7 @@
     Work, Done.
   </h2>
   <p
-    class="relative font-semibold z-10 text-center mt-4 bg-gradient-to-b from-neutral-900 to-neutral-900 bg-clip-text text-transparent text-md sm:text-lg md:text-xl"
+    class="relative font-semibold z-10 text-center mt-4 md:mt-8 bg-gradient-to-b from-neutral-900 to-neutral-900 bg-clip-text text-transparent text-md sm:text-lg md:text-xl"
   >
     <ShineText>Coming Soon</ShineText>
   </p>
