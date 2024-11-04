@@ -1,56 +1,52 @@
 <script lang="ts">
   import type { Execution } from "$lib/stores/executionStore"
-  import { deleteExecution } from "$lib/stores/executionStore"
+  import { deleteExecution, stopExecution } from "$lib/stores/executionStore"
   import { draggable } from "@neodrag/svelte"
-  import { ChevronDown, ChevronUp, GripVertical, Trash2, StopCircle } from "lucide-svelte"
+  import {
+    ChevronDown,
+    ChevronUp,
+    GripVertical,
+    StopCircle,
+    Trash2,
+  } from "lucide-svelte"
 
   export let execution: Execution
-  $: collapsed = false
 
-  function toggleCollapse() {
-    collapsed = !collapsed
-  }
+  let collapsed = false
 
   async function handleStop() {
+    if (!execution?.run_id) return
+
     try {
-      const response = await fetch("/api/execute-enigmatic/stop", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ run_id: execution.run_id }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to stop execution");
-      }
+      await stopExecution(execution.run_id)
     } catch (error) {
-      console.error("Error stopping execution:", error);
+      console.error("Error stopping execution:", error)
     }
   }
 
   async function handleDelete() {
+    if (!execution?.run_id) return
+
     if (!confirm("Are you sure you want to delete this execution?")) {
-      return;
+      return
     }
 
     try {
-      const response = await fetch("/api/conductor/executions/delete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ run_id: execution.run_id }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to delete execution");
-      }
+      await deleteExecution(execution.run_id)
     } catch (error) {
-      console.error("Error deleting execution:", error);
+      console.error("Error deleting execution:", error)
     }
+  }
+
+  function toggleCollapse() {
+    collapsed = !collapsed
   }
 </script>
 
-<div use:draggable class="absolute top-4 left-4 bg-card border border-border rounded-lg shadow-lg max-w-min hover:shadow-xl">
+<div
+  use:draggable
+  class="absolute top-4 left-4 bg-card border border-border rounded-lg shadow-lg max-w-min hover:shadow-xl transition-shadow"
+>
   <div class="flex items-center justify-between bg-muted rounded-t-lg">
     <div class="flex items-center gap-2 p-1">
       <GripVertical class="cursor-grab h-5 w-5 text-muted-foreground" />
@@ -67,7 +63,7 @@
     </div>
     <div class="flex items-center gap-2 pr-2">
       {#if execution.status === "running"}
-        <button 
+        <button
           on:click={handleStop}
           class="p-1 hover:bg-background/80 rounded-full"
           title="Stop Execution"
@@ -75,14 +71,14 @@
           <StopCircle class="h-5 w-5 text-red-500" />
         </button>
       {/if}
-      <button 
+      <button
         on:click={handleDelete}
         class="p-1 hover:bg-background/80 rounded-full"
         title="Delete Execution"
       >
         <Trash2 class="h-5 w-5 text-muted-foreground hover:text-red-500" />
       </button>
-      <button 
+      <button
         on:click={toggleCollapse}
         class="p-1 hover:bg-background/80 rounded-full"
       >

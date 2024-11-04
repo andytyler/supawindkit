@@ -29,9 +29,26 @@ const ActivityPayload = z.discriminatedUnion('action_type', [
   EmailPayload,
 ]);
 
-// Activity schemas using discriminated union
-export const ActivitySchema = z.object({
-  activities: z.array(ActivityPayload)
+// // Activity schemas using discriminated union
+// export const ActivitySchema = z.object({
+//   activities: z.array(ActivityPayload)
+// });
+
+// export type LLMActivity = z.infer<typeof ActivitySchema>['activities'][number];
+
+// // ... existing imports ...
+
+// Add a Step schema that contains activities and metadata
+const StepSchema = z.object({
+  step_id: z.string(),
+  activities: z.array(ActivityPayload),
+  depends_on: z.array(z.string()).optional(), // Array of step_ids this step depends on
 });
 
-export type LLMActivity = z.infer<typeof ActivitySchema>['activities'][number];
+// Update the main schema to use steps instead of direct activities
+export const WorkflowSchema = z.object({
+  steps: z.array(StepSchema)
+});
+
+export type LLMStep = z.infer<typeof WorkflowSchema>['steps'][number];
+export type LLMActivity = z.infer<typeof StepSchema>['activities'][number];

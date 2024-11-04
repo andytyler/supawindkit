@@ -26,7 +26,8 @@ export async function single_shot(
 	site: string,
 	inputPageActionableElements: any,
 	page: Page | null	,
-	run_id: string
+	run_id: string,
+	inputs?: Record<string, any>
 ) {
 	let chats: EventType[] = [];
 	// need to add a get page part to getHtml, where it will be able to give you the active page
@@ -89,6 +90,11 @@ The screenshot will be 512px by 512px.
 
 You must navigate the website until you reach your goal.
 Goal: "${goal}"
+
+${inputs ? `
+Information from previous steps:
+${JSON.stringify(inputs, null, 2)}
+` : ''}
 
 You can CLICK, SCROLL, TYPE, or REQUEST_USER_INPUT.
 You can only give instructions to do one thing at a time.
@@ -312,9 +318,10 @@ ${JSON.stringify(actionableElements)}
 		logEvent({ run_id, type: "loop_end", action: null, message: "LOOP END" }, run_id);
 
 		// continue the loop
-		await single_shot([...previousActions, llmActionResponse], screenshot_url, goal, end_url, clickableElements, page, run_id);
+		await single_shot([...previousActions, llmActionResponse], screenshot_url, goal, end_url, clickableElements, page, run_id, inputs);
 	}
 	return {
 		success: true,
+		output: llmActionResponse.output,
 	};
 }

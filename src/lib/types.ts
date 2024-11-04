@@ -71,6 +71,7 @@ export const InteligentAction = z.object({
 		.describe(
 			"Did the previous action achieve the goal? When deciding make sure that you have some form of confirmation the action succeeded and the goal was achieved."
 		),
+	output: z.string().describe("What is the output of this entire thread that helps solve the goal? If nothing put n/a"),
 	action: Action,
 });
 
