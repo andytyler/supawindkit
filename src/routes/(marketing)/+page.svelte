@@ -1,11 +1,16 @@
 <script lang="ts">
   import ShineText from "$components/animations/ShineText.svelte"
   import { BackgroundBeams } from "$components/ui/BackgroundBeams"
+  import WaitlistSignup from "$lib/components/marketing/WaitlistSignup.svelte"
+  import type { ActionData } from "./$types"
   import {
     WebsiteBaseUrl,
     WebsiteDescription,
     WebsiteName,
   } from "./../../config"
+
+  export let data
+  export let form: ActionData
 
   const ldJson = {
     "@context": "https://schema.org",
@@ -37,4 +42,6 @@
   >
     <ShineText>Coming Soon</ShineText>
   </p>
+
+  <WaitlistSignup {form} />
 </div>
