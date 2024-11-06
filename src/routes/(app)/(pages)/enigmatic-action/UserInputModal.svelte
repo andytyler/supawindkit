@@ -33,11 +33,11 @@
   }
 </script>
 
-{#if $userInputStore.isWaiting}
+{#if $userInputStore[run_id]?.isWaiting}
   <div class="rounded-lg border bg-card p-4 text-card-foreground shadow-sm">
     <div class="mb-4">
       <h3 class="text-lg font-semibold">Input Required</h3>
-      <p class="text-sm text-muted-foreground">{$userInputStore.prompt}</p>
+      <p class="text-sm text-muted-foreground">{$userInputStore[run_id]?.prompt}</p>
     </div>
 
     <form on:submit|preventDefault={handleSubmit} class="space-y-4">

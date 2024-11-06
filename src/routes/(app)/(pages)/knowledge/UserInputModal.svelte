@@ -14,25 +14,31 @@
   $: prompt = $userInputStore[run_id]?.prompt || ""
 
   async function handleSubmit() {
-    if (run_id) {
-      // Send user input to the server
+    if (!run_id || !userInput.trim()) return
+
+    try {
       const response = await fetch("/api/execute-enigmatic/user-input", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ run_id, input: userInput }),
+        body: JSON.stringify({ run_id, input: userInput.trim() }),
       })
 
-      if (response.ok) {
-        console.log("Input submitted successfully")
-      } else {
-        console.error("Failed to submit input")
-      }
-    }
+      const data = await response.json()
 
-    hideUserInputPrompt(run_id)
-    userInput = ""
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to submit input")
+      }
+
+      if (data.success) {
+        hideUserInputPrompt(run_id)
+        isWaiting = false
+        userInput = ""
+      }
+    } catch (error) {
+      console.error("Failed to submit input:", error)
+    }
   }
 </script>
 
@@ -49,8 +55,11 @@
         bind:value={userInput}
         placeholder="Enter your response"
         class="w-full"
+        autofocus
       />
-      <Button type="submit" class="w-full">Submit</Button>
+      <Button type="submit" class="w-full" disabled={!userInput.trim()}>
+        Submit
+      </Button>
     </form>
   </div>
 {/if}

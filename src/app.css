@@ -24,7 +24,7 @@ button[disabled].authBtn::before {
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 142.1 76.2% 36.3%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 355.7 100% 97.3%;
     --secondary: 260 100% 70%;
     --secondary-foreground: 240 5.9% 10%;
@@ -46,7 +46,7 @@ button[disabled].authBtn::before {
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 8.5%;
     --popover-foreground: 0 0% 98%;
-    --primary: 142.1 70% 45%;
+    --primary: 210 100% 66%;
     --primary-foreground: 142.1 70% 7%;
     --secondary: 260 100% 70%;
     --secondary-foreground: 0 0% 98%;

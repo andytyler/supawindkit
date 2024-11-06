@@ -6,7 +6,7 @@ import type { RequestHandler } from './$types';
 
 const SYSTEM_PROMPT = `
 You are an AI assistant that helps create workflow steps on a canvas.
-Each step contains one or more activities, where activities can be of type: browse, rag, email, or generate.
+Each step contains one or more activities, where activities can be of type: browse. 
 Steps can depend on outputs from previous steps - specify these dependencies using step_ids.
 Return an array of steps, where each step contains:
 - step_id: A unique identifier for the step
@@ -47,7 +47,7 @@ async function executeBrowseActivity(activity: LLMActivity, inputs: StepResult =
 
     // Update the execution with completion status
     await updateExecution(execution.run_id, {
-      status: 'completed',
+      status: 'running',
       payload: { activity, success, output },
     });
     

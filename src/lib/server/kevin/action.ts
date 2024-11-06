@@ -45,6 +45,9 @@ export async function single_shot(
 
 	if (!start_screenshot || !page) {
 		const { evaluation_result, page: newPage } = await getHtml(site, { set: "js", evalFunction: getScreenshot, keepBrowserOpen: true });
+		
+
+		
 
 		logEvent({ run_id, type: "start", action: null, message: site }, run_id);
 		logEvent({ run_id, type: "url", action: null, message: site }, run_id);

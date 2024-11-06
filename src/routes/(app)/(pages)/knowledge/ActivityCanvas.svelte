@@ -29,15 +29,17 @@
       {#each executionList as execution (execution.run_id)}
         <DraggableCollapsible {execution}>
           <div class="gap-2 flex flex-col">
+            <UserInputModal run_id={execution.run_id} />
             <PreviewPane run_id={execution.run_id} />
             <ChatsStream run_id={execution.run_id} />
-            <UserInputModal run_id={execution.run_id} />
           </div>
         </DraggableCollapsible>
       {/each}
     </div>
   {:else}
-    <div class="text-center p-4">
+    <div
+      class="flex items-center justify-center h-full text-center text-muted-foreground text-sm p-4"
+    >
       <p>No executions available</p>
     </div>
   {/if}

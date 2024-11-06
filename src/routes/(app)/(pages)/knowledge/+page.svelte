@@ -54,7 +54,7 @@
 
       // Check for user input requests
       if (newChat.type === "request_user_input") {
-        displayUserInputPrompt(newChat.message, newChat.run_id)
+        displayUserInputPrompt(newChat.run_id, newChat.message);
       }
     }
     eventSource.onerror = (error) => {

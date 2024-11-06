@@ -25,8 +25,8 @@ const EmailPayload = z.object({
 
 const ActivityPayload = z.discriminatedUnion('action_type', [
   BrowsePayload,
-  RagPayload,
-  EmailPayload,
+  // RagPayload,
+  // EmailPayload,
 ]);
 
 // // Activity schemas using discriminated union
