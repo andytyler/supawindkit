@@ -4,17 +4,18 @@
     ResizableHandle,
     ResizablePane,
   } from "$lib/components/ui/resizable"
-  import { Separator } from "$lib/components/ui/separator"
   import type { PageData } from "../chat/$types"
   import ActivityCanvas from "./ActivityCanvas.svelte"
 
   export let data: PageData
 
+  import * as Tabs from "$components/ui/tabs"
   import { chatStore } from "$lib/stores/chatStore"
   import { executions } from "$lib/stores/executionStore"
   import { displayUserInputPrompt } from "$lib/stores/userInputStore"
   import { onDestroy, onMount } from "svelte"
   import ConductorInput from "./ConductorInput.svelte"
+  import KnowledgeIngest from "./KnowledgeIngest.svelte"
 
   let loading = false
   let eventSource: EventSource | null = null
@@ -54,7 +55,7 @@
 
       // Check for user input requests
       if (newChat.type === "request_user_input") {
-        displayUserInputPrompt(newChat.run_id, newChat.message);
+        displayUserInputPrompt(newChat.run_id, newChat.message)
       }
     }
     eventSource.onerror = (error) => {
@@ -97,19 +98,27 @@
     </ResizablePane>
     <ResizableHandle withHandle />
     <ResizablePane defaultSize={1 / 3} minSize={30}>
-      <div class="flex items-center justify-between px-4 py-4">
+      <!-- <div class="flex items-center justify-between px-4 py-4">
         <div class="flex items-center gap-4">
-          <h1 class="text-xl font-bold">Execute</h1>
+          <h1 class="text-xl font-bold">Knowledge Base</h1>
         </div>
       </div>
-      <Separator />
+      <Separator /> -->
 
-      <div class="">
-        <!-- <MessagesContainer {messages} />
-        <TipTapInput /> -->
-        <!-- <ParentChat /> -->
-        <ConductorInput />
-      </div>
+      <Tabs.Root value="execute" class="h-[calc(100vh-8rem)] m-2">
+        <Tabs.List class=" w-full">
+          <Tabs.Trigger class="w-full" value="execute">Execute</Tabs.Trigger>
+          <Tabs.Trigger class="w-full" value="ingest">Ingest</Tabs.Trigger>
+        </Tabs.List>
+
+        <Tabs.Content value="execute" class="h-full overflow-y-auto">
+          <ConductorInput />
+        </Tabs.Content>
+
+        <Tabs.Content value="ingest" class="h-full overflow-y-auto">
+          <KnowledgeIngest />
+        </Tabs.Content>
+      </Tabs.Root>
     </ResizablePane>
   </PaneGroup>
 </div>

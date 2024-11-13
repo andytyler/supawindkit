@@ -6,7 +6,13 @@ import type { RequestHandler } from './$types';
 
 const SYSTEM_PROMPT = `
 You are an AI assistant that helps create workflow steps on a canvas.
-Each step contains one or more activities, where activities can be of type: browse. 
+Each step contains one or more activities, where activities can be of type: browse or rag. 
+
+For RAG activities:
+- Analyze the user's query to determine relevant tag IDs to search
+- Include these tag IDs in the activity configuration
+- Specify the search query to use
+
 Steps can depend on outputs from previous steps - specify these dependencies using step_ids.
 Return an array of steps, where each step contains:
 - step_id: A unique identifier for the step
@@ -22,7 +28,7 @@ type ActivityResult = Record<string, any>;
 type StepResult = Record<string, any>;
 
 // Improve error handling and typing for activity executors
-async function executeBrowseActivity(activity: LLMActivity, inputs: StepResult = {}): Promise<ActivityResult> {
+async function executeBrowseActivity(activity: LLMActivity, inputs: StepResult = {}, fetch: Function, tagIds?: string[]): Promise<ActivityResult> {
   if (activity.action_type !== 'browse') {
     throw new Error('Invalid activity type provided to executeBrowseActivity');
   }
@@ -65,9 +71,121 @@ async function executeBrowseActivity(activity: LLMActivity, inputs: StepResult =
   }
 }
 
-async function executeRagActivity(activity: LLMActivity, inputs: any = {}) {
-  // TODO: Implement RAG execution
-  return { rag_result: 'placeholder' };
+async function executeRagActivity(
+  activity: LLMActivity, 
+  inputs: StepResult = {}, 
+  fetch: Function, 
+  tagIds?: any[]
+): Promise<ActivityResult> {
+  if (activity.action_type !== 'rag') {
+    throw new Error('Invalid activity type provided to executeRagActivity');
+  }
+
+  const execution = await addExecution({
+    status: 'running',
+    payload: { 
+      activity,
+      output: {
+        results: [] // Initialize empty results array
+      }
+    },
+  });
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userInput: activity.query,
+        tagIds: tagIds?.map(id => id),
+        systemPrompt: activity.system_prompt || '',
+      })
+    });
+
+    if (!response.ok) {
+      await updateExecution(execution.run_id, {
+        status: 'completed',
+        payload: { 
+          activity, 
+          error: 'RAG search failed',
+          output: { results: [] }
+        },
+      });
+      throw new Error('RAG search failed');
+    }
+    
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let result = '';
+    let snippets = [];
+
+    while (reader) {
+      const {value, done} = await reader.read();
+      if (done) break;
+      
+      const chunk = decoder.decode(value);
+      if (chunk.includes('### Snippets Context')) {
+        const [content, snippetsData] = chunk.split('### Snippets Context');
+        result += content;
+        snippets = JSON.parse(snippetsData.trim());
+        break;
+      } else {
+        result += chunk;
+      }
+
+      // Update execution with intermediate results
+      await updateExecution(execution.run_id, {
+        status: 'running',
+        payload: { 
+          activity,
+          output: {
+            results: [{
+              content: result,
+              source: 'RAG Search'
+            }]
+          }
+        },
+      });
+    }
+
+    // Final update with complete results
+    await updateExecution(execution.run_id, {
+      status: 'completed',
+      payload: { 
+        activity,
+        success: true,
+        output: {
+          results: [{
+            content: result,
+            source: 'RAG Search'
+          }],
+          snippets,
+          used_query: activity.query,
+          used_tags: tagIds?.map(id => id) || []
+        }
+      },
+    });
+
+    return {
+      rag_result: result,
+      snippets,
+      used_query: activity.query,
+      used_tags: tagIds?.map(id => id) || []
+    };
+
+  } catch (error) {
+    await updateExecution(execution.run_id, {
+      status: 'completed',
+      payload: { 
+        activity, 
+        error: error.message,
+        output: { results: [] }
+      },
+    });
+    throw error;
+  }
 }
 
 async function executeEmailActivity(activity: LLMActivity, inputs: any = {}) {
@@ -81,7 +199,7 @@ async function executeGenerateActivity(activity: LLMActivity, inputs: any = {}) 
 }
 
 // Improve activity executor type safety
-const activityExecutors: Record<string, (activity: LLMActivity, inputs: StepResult) => Promise<ActivityResult>> = {
+const activityExecutors: Record<string, (activity: LLMActivity, inputs: StepResult, fetch: Function, tagIds?: string[]) => Promise<ActivityResult>> = {
   browse: executeBrowseActivity,
   rag: executeRagActivity,
   email: executeEmailActivity,
@@ -89,8 +207,12 @@ const activityExecutors: Record<string, (activity: LLMActivity, inputs: StepResu
 };
 
 // Improved workflow execution with better error handling and typing
-async function executeWorkflow(steps: LLMStep[]): Promise<Map<string, StepResult>> {
-  console.log('🚀 Starting workflow execution with steps:', steps);
+async function executeWorkflow(
+  steps: LLMStep[], 
+  fetch: Function, 
+  tagIds?: any[]
+): Promise<Map<string, StepResult>> {
+  console.log('🚀 Starting workflow execution with steps:', steps, 'tagIds:', tagIds);
   const stepOutputs = new Map<string, StepResult>();
   const completedSteps = new Set<string>();
   const inProgressSteps = new Set<string>();
@@ -145,7 +267,7 @@ async function executeWorkflow(steps: LLMStep[]): Promise<Map<string, StepResult
           if (!executor) {
             throw new Error(`No executor found for activity type: ${activity.action_type}`);
           }
-          return executor(activity, inputs);
+          return executor(activity, inputs, fetch, tagIds);
         })
       );
 
@@ -188,10 +310,10 @@ async function executeWorkflow(steps: LLMStep[]): Promise<Map<string, StepResult
   return stepOutputs;
 }
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request, fetch }) => {
   try {
     console.log('📥 Received workflow request');
-    const { userInput, workbenchId } = await request.json();
+    const { userInput, workbenchId, tagIds } = await request.json();
     
     const stream = new ReadableStream({
       async start(controller) {
@@ -215,7 +337,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
           );
           
           // Execute the workflow and get results
-          const workflowResults = await executeWorkflow(steps);
+          const workflowResults = await executeWorkflow(steps, fetch, tagIds);
 
           // Stream the response back to the client
           controller.enqueue(

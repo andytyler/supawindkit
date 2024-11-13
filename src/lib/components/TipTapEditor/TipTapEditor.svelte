@@ -1,10 +1,9 @@
 <script lang="ts">
   import { browser } from "$app/environment"
   import { Button } from "$components/ui/button"
-  import { Separator } from "$components/ui/separator"
   import { selectedTagIds } from "$lib/stores/tags"
   import { Editor } from "@tiptap/core"
-  import { ChevronRight, X } from "lucide-svelte"
+  import { ChevronRight, Tag, X } from "lucide-svelte"
   import { onDestroy, onMount } from "svelte"
   import type { Unsubscriber } from "svelte/store"
   import TurndownService from "turndown"
@@ -190,48 +189,21 @@
   }
 </script>
 
-<div class="sticky bottom-0 bg-card border-t">
-  <Separator class="mb-2" />
-  <div class="p-4 space-y-4">
+<div class="sticky bottom-0 bg-card border rounded-lg border-border">
+  <!-- <Separator class="mb-2" /> -->
+  <div class="p-2 space-y-4">
     <form on:submit|preventDefault={sendChatRequest} class="space-y-4">
-      <!-- Toggle for Example Input -->
-      <button
-        type="button"
-        class="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full"
-        on:click={() => (showExampleInput = !showExampleInput)}
-      >
-        <ChevronRight
-          size={16}
-          class={`transition-transform duration-200 ${showExampleInput ? "rotate-90" : ""}`}
-        />
-        Format Response Using Example
-      </button>
-
-      {#if showExampleInput}
-        <div class="rounded-md border bg-muted p-3">
-          <textarea
-            bind:value={exampleOutput}
-            class="w-full min-h-[100px] p-2 text-sm font-mono bg-background border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="Paste an example of how you want the AI response to be formatted..."
-          />
-          <p class="text-xs text-muted-foreground mt-2">
-            The AI will use this example as a template for structuring its
-            responses.
-          </p>
-        </div>
-      {/if}
-
       <!-- TipTap Editor -->
       <div class="relative">
-        <div bind:this={editorElement} class="relative" />
         {#if $selectedTagIds.length > 0}
           <!-- Display selected tags if any -->
-          <div class="mt-2 flex flex-wrap gap-2">
+          <div class="mb-2 flex flex-wrap gap-2">
             {#each $selectedTagIds as tagId}
               {#if allTagIds.find((t) => t.id === tagId)}
                 <div
                   class="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-2.5 py-1 rounded-md text-sm font-medium border border-primary/20"
                 >
+                  <Tag size={14} />
                   <span>{allTagIds.find((t) => t.id === tagId)?.title}</span>
                   <button
                     type="button"
@@ -249,8 +221,34 @@
             {/each}
           </div>
         {/if}
+        <div bind:this={editorElement} class="relative" />
       </div>
 
+      <!-- Toggle for Example Input -->
+      <button
+        type="button"
+        class="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full"
+        on:click={() => (showExampleInput = !showExampleInput)}
+      >
+        <ChevronRight
+          size={16}
+          class={`transition-transform duration-200 ${showExampleInput ? "rotate-90" : ""}`}
+        />
+        Format Response Using Example
+      </button>
+      {#if showExampleInput}
+        <div class="rounded-md border bg-muted p-3">
+          <textarea
+            bind:value={exampleOutput}
+            class="w-full min-h-[100px] p-2 text-sm font-mono bg-background border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="Paste an example of how you want the AI response to be formatted..."
+          />
+          <p class="text-xs text-muted-foreground mt-2">
+            The AI will use this example as a template for structuring its
+            responses.
+          </p>
+        </div>
+      {/if}
       <!-- Send Button -->
       <div class="flex justify-end">
         <Button type="submit" disabled={loading} size="sm" variant="default">

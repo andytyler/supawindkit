@@ -90,7 +90,7 @@
         <span
           class="text-sm text-muted-foreground uppercase font-bold tracking-widest"
         >
-          Slate
+          Supafetch
         </span>
         <Button
           on:click={toggleMode}

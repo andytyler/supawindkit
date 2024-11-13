@@ -45,7 +45,7 @@
 
 <div
   use:draggable
-  class="absolute top-4 left-4 bg-card border border-border rounded-lg shadow-lg max-w-min hover:shadow-xl transition-shadow"
+  class="absolute top-4 left-4 bg-card border border-border rounded-lg shadow-lg w-96 hover:shadow-xl transition-shadow"
 >
   <div class="flex items-center justify-between bg-muted rounded-t-lg">
     <div class="flex items-center gap-2 p-1">
@@ -57,8 +57,8 @@
       {:else if execution.status === "stopped"}
         <span class="h-2 w-2 rounded-full bg-red-500/80" />
       {/if}
-      <h2 class="text-lg font-medium text-foreground/80">
-        {execution.run_id}
+      <h2 class="text-lg font-medium truncate uppercase text-foreground/80">
+        {execution.payload.activity?.action_type || "Unknown"}
       </h2>
     </div>
     <div class="flex items-center gap-2 pr-2">

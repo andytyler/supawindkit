@@ -1,9 +1,10 @@
 import supabase from "$lib/supabase";
+import type { ExecutionPayload } from "$lib/types/llm-schemas";
 import { writable } from "svelte/store";
 
 export type Execution = {
   run_id: string;
-  payload: any;
+  payload: {activity?: ExecutionPayload, success?: boolean, output?: any, error?: string | null};
   status: "running" | "completed" | "stopped";
 };
 

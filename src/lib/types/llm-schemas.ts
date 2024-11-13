@@ -11,6 +11,7 @@ const BrowsePayload = z.object({
 const RagPayload = z.object({
   action_type: z.literal('rag'),
   query: z.string(),
+  system_prompt: z.string().optional(),
   context_ids: z.array(z.string()),
 });
 
@@ -25,7 +26,7 @@ const EmailPayload = z.object({
 
 const ActivityPayload = z.discriminatedUnion('action_type', [
   BrowsePayload,
-  // RagPayload,
+  RagPayload,
   // EmailPayload,
 ]);
 
@@ -50,5 +51,6 @@ export const WorkflowSchema = z.object({
   steps: z.array(StepSchema)
 });
 
+export type ExecutionPayload = z.infer<typeof ActivityPayload>;
 export type LLMStep = z.infer<typeof WorkflowSchema>['steps'][number];
 export type LLMActivity = z.infer<typeof StepSchema>['activities'][number];
