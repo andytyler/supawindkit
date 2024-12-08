@@ -1,6 +1,6 @@
 <script lang="ts">
   import { navigating } from "$app/stores"
-  import { WebsiteLogo } from "$config"
+  import { WebsiteDescription, WebsiteLogo, WebsiteName } from "$config"
   import { Button } from "$lib/components/ui/button"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import ExternalLink from "lucide-svelte/icons/external-link"
@@ -76,34 +76,25 @@
           <div class="flex items-center gap-2 rounded-lg">
             <img
               src={WebsiteLogo}
-              alt="SpikeJam Logo"
+              alt={WebsiteName + " logo"}
               class="h-6 w-auto invert-0 dark:invert-100 transition-all duration-300 rounded-lg"
             />
           </div>
           <span class="text-foreground hover:text-foreground/80 italic"
-            >SpikeJam</span
+            >{WebsiteName}</span
           >
         </a>
 
         <div class="flex items-center gap-6 uppercase">
-          <a
-            href="/blog"
-            class="text-sm font-medium transition-colors text-foreground hover:text-foreground/80"
-          >
-            Blog
-          </a>
-          <a
-            href="/about"
-            class="text-sm font-medium transition-colors text-foreground hover:text-foreground/80"
-          >
-            About
-          </a>
-          <a
-            href="/contact"
-            class="text-sm font-medium transition-colors text-foreground hover:text-foreground/80"
-          >
-            Cal
-          </a>
+          {#each [{ label: "Chat", href: "/chat" }, { label: "Blog", href: "/blog" }, { label: "Search", href: "/" }, { label: "Pricing", href: "/pricing" }, { label: "Login", href: "/login" }] as link}
+            <Button
+              href={link.href}
+              variant="link"
+              class="text-sm font-medium transition-colors text-foreground hover:text-foreground/80"
+            >
+              {link.label}
+            </Button>
+          {/each}
 
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild let:builder>
@@ -147,10 +138,9 @@
       <div class="flex flex-col md:flex-row justify-between gap-8 py-8">
         <!-- About Section -->
         <div class="max-w-sm">
-          <h3 class="font-semibold mb-4">About The SpikeJam Blog</h3>
+          <h3 class="font-semibold mb-4">About {WebsiteName}</h3>
           <p class="text-sm text-muted-foreground">
-            The SpikeJam Blog is a repository of exploring, learning, insights,
-            from Andy & Anton, co-founders spiking their way into the future.
+            {WebsiteDescription}
           </p>
         </div>
 

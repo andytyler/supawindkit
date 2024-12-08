@@ -4,47 +4,51 @@
 
 @layer base {
   :root {
-    --background: 260 35% 98%; /* Lighter base */
-    --foreground: 260 40% 12%;
-    --card: 260 35% 96%;
-    --card-foreground: 260 40% 12%;
-    --popover: 260 35% 98%;
-    --popover-foreground: 260 40% 12%;
-    --primary: 230 100% 65%; /* Vibrant blue */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 180 100% 60%; /* Cyan */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 260 25% 90%;
-    --muted-foreground: 260 30% 35%;
-    --accent: 320 100% 65%; /* Bright pink */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 100% 60%;
+    /* Refined Light Theme - Warm Neutral */
+    --background: 40 30% 98%; /* Softer warm white */
+    --foreground: 35 25% 15%;
+    --card: 42 25% 96%;
+    --card-foreground: 35 25% 15%;
+    --popover: 40 30% 98%;
+    --popover-foreground: 35 25% 15%;
+    --primary: 42 85% 45%; /* Muted gold */
+    --primary-foreground: 40 10% 98%;
+    --secondary: 35 40% 65%; /* Soft champagne */
+    --secondary-foreground: 35 25% 15%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 35 25% 45%;
+    --accent: 30 35% 60%; /* Warm taupe */
+    --accent-foreground: 35 25% 15%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 260 30% 85%;
-    --input: 260 30% 85%;
-    --ring: 230 100% 65%;
+    --border: 220 20% 88%;
+    --input: 220 20% 88%;
+    --ring: 250 95% 65%;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 260 50% 5%; /* Deeper dark */
-    --foreground: 260 25% 98%;
-    --card: 260 45% 8%;
-    --card-foreground: 260 25% 98%;
-    --popover: 260 45% 7%;
-    --popover-foreground: 260 25% 98%;
-    --primary: 230 100% 70%; /* Glowing blue */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 180 100% 65%; /* Bright cyan */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 260 40% 12%;
-    --muted-foreground: 260 20% 80%;
-    --accent: 320 100% 70%; /* Neon pink */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 100% 65%;
+    /* Refined Dark Theme - Warm Neutral */
+    --background: 40 25% 5%; /* Rich dark brown */
+    --foreground: 35 15% 90%;
+    --card: 42 20% 8%;
+    --card-foreground: 35 15% 90%;
+    --popover: 40 25% 5%;
+    --popover-foreground: 35 15% 90%;
+    --primary: 42 75% 55%; /* Sophisticated gold */
+    --primary-foreground: 40 15% 10%;
+    --secondary: 35 35% 35%; /* Deep bronze */
+    --secondary-foreground: 35 15% 90%;
+    --muted: 40 25% 15%;
+    --muted-foreground: 35 20% 70%;
+    --accent: 30 30% 45%; /* Rich bronze */
+    --accent-foreground: 35 15% 90%;
+    --destructive: 0 95% 65%;
     --destructive-foreground: 0 0% 100%;
-    --border: 260 40% 12%;
-    --input: 260 40% 12%;
-    --ring: 230 100% 70%;
+    --border: 225 35% 10%;
+    --input: 225 35% 10%;
+    --ring: 250 98% 70%;
+    --radius: 0.5rem;
   }
 }
 

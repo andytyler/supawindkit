@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { GridAndDotBackground } from "$components/ui/GridAndDotBackground"
-  import { ArrowRight } from "lucide-svelte"
+  import { DotBackground } from "$lib/components/ui/GridAndDotBackground"
+  import { ArrowRight, Sparkles } from "lucide-svelte"
   import { WebsiteBaseUrl, WebsiteDescription, WebsiteName } from "../../config"
   import type { ActionData } from "./$types"
 
@@ -8,10 +8,30 @@
   export let form: ActionData
 
   const features = [
-    { icon: "🤖", title: "AI-Powered", desc: "Natural conversations" },
-    { icon: "⚡", title: "Quick Setup", desc: "Ready in minutes" },
-    { icon: "🔄", title: "Auto-Updates", desc: "Always in sync" },
-    { icon: "🎯", title: "Custom Training", desc: "Your content, your way" },
+    {
+      icon: "🤖",
+      title: "Smart Indexing",
+      desc: "Automatically indexes and understands your entire website content",
+      gradient: "from-blue-500/20 via-blue-500/10 to-transparent",
+    },
+    {
+      icon: "⚡",
+      title: "Lightning Fast",
+      desc: "Get instant answers from your website content",
+      gradient: "from-yellow-500/20 via-yellow-500/10 to-transparent",
+    },
+    {
+      icon: "🎯",
+      title: "Precise Answers",
+      desc: "Context-aware responses from your exact content",
+      gradient: "from-green-500/20 via-green-500/10 to-transparent",
+    },
+    {
+      icon: "🔄",
+      title: "Always Fresh",
+      desc: "Content stays current with automatic updates",
+      gradient: "from-purple-500/20 via-purple-500/10 to-transparent",
+    },
   ]
 
   const companies = ["Company 1", "Company 2", "Company 3", "Company 4"]
@@ -33,141 +53,181 @@
   {@html jsonldScript}
 </svelte:head>
 
-<main
-  class="min-h-screen bg-background antialiased overflow-hidden selection:bg-primary/30 selection:text-foreground"
->
-  <div class="relative">
-    <GridAndDotBackground>
-      <!-- Enhanced gradient background -->
+<main class="relative min-h-screen bg-background antialiased">
+  <DotBackground showFade={true}>
+    <div class="relative w-full">
+      <!-- Enhanced gradient background - make it full width -->
+      <div class="absolute inset-0 w-full">
+        <div
+          class="absolute inset-0 w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/30 via-background/40 to-background"
+        ></div>
+      </div>
+
       <div
-        class="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background"
-      />
-
-      <div class="relative min-h-screen flex flex-col">
-        <div class="flex-1 flex items-center">
-          <div class="w-full max-w-7xl mx-auto px-6 py-24 md:py-32">
-            <div class="flex flex-col items-center text-center space-y-16">
-              <!-- Enhanced Hero Badge -->
+        class="relative max-w-7xl mx-auto px-6 pt-20 pb-24 sm:pt-32 sm:pb-32 w-full"
+      >
+        <!-- Floating Cards -->
+        <div class="absolute left-10 top-20 animate-float-slow">
+          <div
+            class="bg-card backdrop-blur-xl rounded-2xl p-4 shadow-lg rotate-[-12deg]
+                      border border-foreground/10 hover:border-foreground/20 transition-all duration-300"
+          >
+            <div class="flex items-center gap-3">
               <div
-                class="group relative overflow-hidden rounded-full bg-card/30 backdrop-blur-md border border-border/50 px-6 py-3
-                          shadow-lg hover:shadow-primary/20 transition-all duration-500 hover:scale-105"
+                class="w-8 h-8 bg-background/5 rounded-lg flex items-center justify-center"
               >
-                <span
-                  class="relative z-10 text-sm font-medium bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent"
-                >
-                  🧠 Any Website, All Knowledge →
-                </span>
-                <div
-                  class="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                />
+                <span class="text-foreground/80">🔍</span>
               </div>
+              <div class="text-sm text-foreground/80">Indexing website...</div>
+            </div>
+          </div>
+        </div>
 
-              <!-- Epic Hero Title -->
-              <div class="space-y-8">
-                <h1
-                  class="font-bold tracking-tight text-6xl md:text-7xl lg:text-8xl [text-wrap:balance] leading-tight"
-                >
-                  <div
-                    class="relative flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4"
-                  >
-                    <span
-                      class="block text-foreground drop-shadow-[0_0_25px_rgba(var(--primary),0.3)] transition-all duration-300 hover:scale-105"
-                    >
-                      Perform
-                    </span>
-                    <span
-                      class="relative z-10 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-pulse hover:animate-none transition-all duration-300 hover:scale-110"
-                    >
-                      RAG
-                    </span>
-                  </div>
-                  <span
-                    class="mt-2 md:mt-4 block text-foreground drop-shadow-[0_0_25px_rgba(var(--primary),0.3)] transition-all duration-300 hover:scale-105"
-                  >
-                    On Any Website
-                  </span>
-                </h1>
-
-                <p
-                  class="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed"
-                >
-                  Transform any website content into an interactive AI chatbot.
-                  Not just 1 page - the whole site!
-                </p>
-              </div>
-
-              <!-- Enhanced CTA Buttons -->
+        <div class="absolute right-10 top-40 animate-float">
+          <div
+            class="bg-card backdrop-blur-xl rounded-2xl p-4 shadow-lg rotate-[8deg]
+                      border border-foreground/10 hover:border-foreground/20 transition-all duration-300"
+          >
+            <div class="flex items-center gap-3">
               <div
-                class="flex flex-col sm:flex-row gap-6 min-w-[380px] justify-center"
+                class="w-8 h-8 bg-background/5 rounded-lg flex items-center justify-center"
               >
-                <a
-                  href="/dashboard"
-                  class="group relative overflow-hidden inline-flex items-center justify-center px-8 py-4 text-base font-medium
-                          bg-primary text-primary-foreground rounded-full transition-all duration-300
-                          hover:bg-primary/90 hover:scale-105 hover:shadow-lg hover:shadow-primary/20
-                          border border-primary/20"
-                >
-                  Start for Free
-                  <ArrowRight
-                    class="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
-                  />
-                </a>
-                <a
-                  href="/demo"
-                  class="inline-flex items-center justify-center px-8 py-4 text-base font-medium
-                          border border-border rounded-full transition-all duration-300
-                          hover:bg-card/50 hover:border-primary/50 hover:scale-105 backdrop-blur-sm
-                          hover:shadow-lg hover:shadow-primary/20"
-                >
-                  See it in Action
-                </a>
+                <span class="text-foreground/80">💬</span>
               </div>
-
-              <!-- Enhanced Feature Grid -->
-              <div
-                class="grid grid-cols-2 md:grid-cols-4 gap-8 pt-16 max-w-4xl mx-auto"
-              >
-                {#each features as feature}
-                  <div
-                    class="group relative overflow-hidden rounded-2xl bg-card/30 backdrop-blur-md border border-border/50
-                              p-6 transition-all duration-300 hover:scale-105 hover:bg-card/50
-                              hover:shadow-lg hover:shadow-primary/20 hover:border-primary/50"
-                  >
-                    <span
-                      class="text-4xl block group-hover:scale-110 transition-transform duration-300"
-                      >{feature.icon}</span
-                    >
-                    <h3 class="font-semibold text-foreground mt-4">
-                      {feature.title}
-                    </h3>
-                    <p class="text-sm text-muted-foreground mt-2">
-                      {feature.desc}
-                    </p>
-                  </div>
-                {/each}
-              </div>
-
-              <!-- Enhanced Social Proof -->
-              <div class="pt-16 border-t border-border/50 w-full">
-                <p
-                  class="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent text-lg font-medium mb-8"
-                >
-                  Trusted by innovative teams
-                </p>
-                <div class="flex justify-center items-center space-x-12">
-                  {#each companies as company}
-                    <span
-                      class="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300"
-                    >
-                      {company}
-                    </span>
-                  {/each}
-                </div>
+              <div class="text-sm text-foreground/80">
+                AI processing complete
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Main Content -->
+        <div class="relative z-10 text-center">
+          <!-- New Announcement Pill -->
+          <div class="flex justify-center mb-16">
+            <a
+              href="/blog"
+              class="group relative flex items-center gap-2 px-4 py-2
+                      bg-primary/5 hover:bg-primary/10
+                      backdrop-blur-md
+                      border border-primary/10
+                      rounded-full
+                      transition-all duration-300 hover:scale-102
+                      text-sm text-foreground/80"
+            >
+              <Sparkles class="h-3.5 w-3.5 text-primary" />
+              <span class="font-medium">
+                New: Our AI integration just landed
+              </span>
+              <ArrowRight
+                class="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+              />
+            </a>
+          </div>
+
+          <!-- Enhanced Title -->
+          <h1
+            class="max-w-4xl mx-auto text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight mb-8"
+          >
+            <span class="block text-foreground leading-tight">Perform</span>
+            <span
+              class="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent
+                       animate-gradient-x hover:scale-105 transition-transform duration-300 inline-block"
+            >
+              RAG
+            </span>
+            <span class="block text-foreground/90 leading-tight"
+              >On Any Website</span
+            >
+          </h1>
+
+          <p
+            class="max-w-2xl mx-auto text-xl text-foreground/60 mb-12 leading-relaxed"
+          >
+            Transform your website into an intelligent knowledge base. Get
+            instant, accurate answers powered by AI.
+          </p>
+
+          <!-- Enhanced CTAs -->
+          <div class="flex flex-col sm:flex-row gap-6 justify-center mb-20">
+            <a
+              href="/dashboard"
+              class="group relative px-8 py-4 text-lg font-medium
+                      bg-primary hover:bg-primary/90
+                      text-primary-foreground rounded-full
+                      transition-all duration-300 hover:scale-105
+                      shadow-[0_0_15px_rgba(var(--primary),0.5)]"
+            >
+              Start for Free
+              <ArrowRight
+                class="inline-block ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </a>
+            <a
+              href="/demo"
+              class="px-8 py-4 text-lg font-medium
+                      bg-foreground/5 hover:bg-foreground/10
+                      text-foreground rounded-full
+                      transition-all duration-300 hover:scale-105
+                      border border-foreground/10 hover:border-foreground/20"
+            >
+              Try Demo
+            </a>
+          </div>
+
+          <!-- Enhanced Feature Grid -->
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-24 max-w-6xl mx-auto"
+          >
+            {#each features as feature}
+              <div
+                class="group relative overflow-hidden rounded-2xl p-8
+                          bg-gradient-to-br from-primary/5 via-background to-transparent
+                          hover:bg-gradient-to-br hover:from-primary/20 hover:via-primary/5 hover:to-transparent
+                          backdrop-blur-xl border border-primary/10 hover:border-primary/30
+                          transition-all duration-500
+                          shadow-[0_0_15px_rgba(var(--primary),0.1)] hover:shadow-[0_0_30px_rgba(var(--primary),0.2)]"
+              >
+                <!-- Decorative gradient orb -->
+                <div
+                  class="absolute -top-10 -right-10 w-20 h-20 bg-gradient-to-br from-primary/20 to-transparent
+                            rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"
+                ></div>
+
+                <span
+                  class="relative text-5xl mb-6 block transform transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12"
+                >
+                  {feature.icon}
+                </span>
+                <h3 class="relative font-semibold text-lg mb-3 text-foreground">
+                  {feature.title}
+                </h3>
+                <p class="relative text-muted-foreground leading-relaxed">
+                  {feature.desc}
+                </p>
+              </div>
+            {/each}
+          </div>
+        </div>
       </div>
-    </GridAndDotBackground>
-  </div>
+    </div>
+  </DotBackground>
 </main>
+
+<style>
+  @keyframes gradient-x {
+    0%,
+    100% {
+      background-size: 200% 200%;
+      background-position: left center;
+    }
+    50% {
+      background-size: 200% 200%;
+      background-position: right center;
+    }
+  }
+
+  .animate-gradient-x {
+    animation: gradient-x 15s ease infinite;
+  }
+</style>
