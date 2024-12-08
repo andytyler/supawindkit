@@ -1,7 +1,8 @@
 <script lang="ts">
   import TipTapEditor from "$lib/components/TipTapEditor/TipTapEditor.svelte"
-  import MessagesContainer from "$lib/components/ui/MessagesContainer.svelte"
+  import { ScrollArea } from "$lib/components/ui/scroll-area"
   import { onMount } from "svelte"
+  import { fade } from "svelte/transition"
 
   let messages: {
     role: "user" | "assistant"
@@ -10,6 +11,7 @@
   }[] = []
 
   let allTagIds: { id: number; title: string }[] = []
+  let scrollAreaViewport: HTMLDivElement
 
   // Fetch tags on mount
   onMount(async () => {
@@ -98,12 +100,58 @@
       ]
     }
   }
+
+  // Auto-scroll to bottom when messages update
+  $: if (messages && scrollAreaViewport) {
+    scrollAreaViewport.scrollTo({
+      top: scrollAreaViewport.scrollHeight,
+      behavior: "smooth",
+    })
+  }
 </script>
 
-<div class="flex flex-col h-full">
-  <!-- Messages Container -->
-  <MessagesContainer {messages} />
+<div
+  class="flex flex-col h-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+>
+  <ScrollArea class="flex-1 pr-4">
+    <div bind:this={scrollAreaViewport} class="h-full px-4">
+      <div class="space-y-4 py-4">
+        {#each messages as message, i (i)}
+          <div
+            class="group relative flex flex-col gap-2 {message.role === 'user'
+              ? 'items-end'
+              : 'items-start'}"
+            transition:fade
+          >
+            <div
+              class="flex max-w-[80%] flex-col gap-2 rounded-lg border bg-card p-4 text-card-foreground shadow-sm"
+            >
+              <div class="prose prose-neutral dark:prose-invert max-w-none">
+                {@html message.content}
+              </div>
+              {#if message.snippets?.length}
+                <div class="mt-4 space-y-2">
+                  <h4 class="text-sm font-medium text-muted-foreground">
+                    Reference Snippets:
+                  </h4>
+                  {#each message.snippets as snippet}
+                    <div class="rounded-md bg-muted/50 p-3 text-sm">
+                      <p class="font-medium text-foreground">{snippet.title}</p>
+                      <p class="mt-1 text-muted-foreground">
+                        {snippet.content}
+                      </p>
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+  </ScrollArea>
 
-  <!-- TipTap Editor -->
-  <TipTapEditor onSendMessage={handleSendMessage} {allTagIds} />
+  <div class="border-t bg-background p-4">
+    <TipTapEditor onSendMessage={handleSendMessage} {allTagIds} />
+  </div>
 </div>

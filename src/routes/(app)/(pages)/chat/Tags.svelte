@@ -1,13 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte"
 
-  let tags: Array<{ id: number; title: string }> = []
+  let tags: Array<{ id: string; title: string }> = []
   let loading = true
   let errorMessage: string | null = null
-  let selectedTags: number[] = []
+  export let selectedTags: string[] = []
 
   const dispatch = createEventDispatcher<{
-    tagsSelected: { selectedTags: number[] }
+    tagsSelected: { selectedTags: string[] }
   }>()
 
   onMount(async () => {
@@ -29,7 +29,7 @@
     }
   })
 
-  function toggleTag(tagId: number) {
+  function toggleTag(tagId: string) {
     selectedTags = selectedTags.includes(tagId)
       ? selectedTags.filter((id) => id !== tagId)
       : [...selectedTags, tagId]
