@@ -48,18 +48,18 @@
   {@html jsonldScript}
 </svelte:head>
 
-<main class="relative min-h-screen bg-background antialiased">
-  <DotBackground showFade={true}>
-    <div class="relative w-full">
+<DotBackground showFade={true}>
+  <main class="relative min-h-screen bg-transparent antialiased">
+    <div class="relative w-screen">
       <!-- Enhanced gradient background -->
       <div class="absolute inset-0 w-full">
         <div
-          class="absolute inset-0 w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/30 via-background/40 to-background"
+          class="absolute inset-0 w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/40 via-background/40 to-transparent"
         ></div>
       </div>
 
       <div
-        class="relative max-w-7xl mx-auto px-6 pt-20 pb-24 sm:pt-32 sm:pb-32 w-full"
+        class="relative max-w-7xl mx-auto px-6 pt-20 pb-24 sm:pt-28 sm:pb-32 w-full"
       >
         <FloatingCards />
 
@@ -101,7 +101,7 @@
 
           <!-- Enhanced Title -->
           <h1
-            class="max-w-4xl mx-auto text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8"
+            class="max-w-4xl mx-auto text-5xl sm:text-6xl lg:text-9xl font-bold tracking-tight mb-8"
           >
             <span class="block text-foreground leading-tight">Chat to your</span
             >
@@ -169,8 +169,8 @@
         </div>
       </div>
     </div>
-  </DotBackground>
-</main>
+  </main>
+</DotBackground>
 
 <style>
   @keyframes gradient-x {

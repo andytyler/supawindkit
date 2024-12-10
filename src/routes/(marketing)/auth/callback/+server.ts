@@ -1,6 +1,6 @@
 // src/routes/auth/callback/+server.js
-import { redirect } from "@sveltejs/kit"
 import { isAuthApiError } from "@supabase/supabase-js"
+import { redirect } from "@sveltejs/kit"
 
 export const GET = async ({ url, locals: { supabase } }) => {
   const code = url.searchParams.get("code")
