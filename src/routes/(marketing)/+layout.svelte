@@ -127,7 +127,7 @@
       </nav>
     </div>
   </header>
-  <div class="pt-16">
+  <div class="">
     <!-- I removed pt-16 from here -->
     <slot />
   </div>
