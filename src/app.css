@@ -5,24 +5,24 @@
 @layer base {
   :root {
     /* Refined Light Theme - Warm Neutral */
-    --background: 40 30% 98%; /* Softer warm white */
-    --foreground: 35 25% 15%;
+    --background: 40 30% 88%; /* Softer warm white */
+    --foreground: 35 25% 9%;
     --card: 42 25% 96%;
-    --card-foreground: 35 25% 15%;
+    --card-foreground: 35 25% 10%;
     --popover: 40 30% 98%;
     --popover-foreground: 35 25% 15%;
     --primary: 42 85% 45%; /* Muted gold */
     --primary-foreground: 40 10% 98%;
     --secondary: 35 40% 65%; /* Soft champagne */
-    --secondary-foreground: 35 25% 15%;
+    --secondary-foreground: 35 25% 10%;
     --muted: 40 20% 92%;
     --muted-foreground: 35 25% 45%;
     --accent: 30 35% 60%; /* Warm taupe */
     --accent-foreground: 35 25% 15%;
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 20% 88%;
-    --input: 220 20% 88%;
+    --border: 220 20% 80%;
+    --input: 220 20% 80%;
     --ring: 250 95% 65%;
     --radius: 0.5rem;
   }
