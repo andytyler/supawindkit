@@ -33,6 +33,9 @@
       const { Editor } = await import("@tiptap/core")
       const StarterKit = (await import("@tiptap/starter-kit")).default
       const Mention = (await import("@tiptap/extension-mention")).default
+      const Extension = (await import("@tiptap/core")).Extension
+      const Placeholder = (await import("@tiptap/extension-placeholder"))
+        .default
 
       // Initialize the editor
       editor = new Editor({
@@ -119,6 +122,21 @@
                 }
               },
             },
+          }),
+          // Add keyboard shortcut handling
+          Extension.create({
+            addKeyboardShortcuts() {
+              return {
+                "Mod-Enter": () => {
+                  sendChatRequest()
+                  return true
+                },
+              }
+            },
+          }),
+          // Add Placeholder extension
+          Placeholder.configure({
+            placeholder: "Type your message here...",
           }),
         ],
         content: "",

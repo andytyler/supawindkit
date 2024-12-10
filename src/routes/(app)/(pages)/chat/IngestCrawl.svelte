@@ -4,6 +4,7 @@
   import Textarea from "$components/ui/textarea/textarea.svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
+  import * as Dialog from "$lib/components/ui/dialog"
   import * as Tabs from "$lib/components/ui/tabs"
   import { superForm } from "sveltekit-superforms/client"
   import type { ActionData, PageData } from "./$types"
@@ -38,6 +39,11 @@
     submitting: searchSubmitting,
     delayed: searchDelayed,
   } = superForm(data.searchForm, {})
+
+  $: console.log(form?.search_results)
+
+  // Add state for the modal
+  let selectedContent: { title?: string; content: string } | null = null
 </script>
 
 <Tabs.Root value="crawl" class="w-full">
@@ -64,6 +70,7 @@
               type="text"
               id="crawl_title"
               name="crawl_title"
+              placeholder="Enter a title for your website..."
               bind:value={$crawlForm.crawl_title}
               class="w-full px-3 py-2 border rounded-md"
               pattern="\S+"
@@ -79,6 +86,7 @@
             <Label for="input_url">URL to crawl</Label>
             <Input
               type="url"
+              placeholder="Enter the URL of the website to add to your Knowledge Base..."
               id="input_url"
               name="input_url"
               bind:value={$crawlForm.input_url}
@@ -96,6 +104,7 @@
             <Input
               type="number"
               id="depth"
+              placeholder="Enter the depth of the crawl..."
               name="depth"
               bind:value={$crawlForm.depth}
               min="0"
@@ -137,6 +146,7 @@
             <Input
               type="text"
               id="textTitle"
+              placeholder="Enter a title for your content..."
               name="textTitle"
               bind:value={$textForm.textTitle}
               class="w-full px-3 py-2 border rounded-md"
@@ -199,6 +209,7 @@
             <Input
               type="text"
               id="searchQuery"
+              placeholder="Search your entire Knowledge Base..."
               name="searchQuery"
               bind:value={$searchForm.searchQuery}
               class="w-full px-3 py-2 border rounded-md"
@@ -221,12 +232,6 @@
           <Button type="submit" disabled={!!$searchDelayed} class="w-full">
             {$searchSubmitting ? "Searching..." : "Search Content"}
           </Button>
-
-          {#if form?.search_results}
-            <div class="mt-4 p-4 bg-green-100 text-green-700 rounded-md">
-              {JSON.stringify(form.search_results)}
-            </div>
-          {/if}
         </form>
 
         {#if $searchMessage}
@@ -236,5 +241,72 @@
         {/if}
       </Card.Content>
     </Card.Root>
+    {#if form?.search_results}
+      <div class="mt-4 space-y-4">
+        {#each form.search_results as result}
+          <Card.Root>
+            <Card.Header>
+              <Card.Title class="text-lg font-semibold">
+                {result.title || "Knowledge Base Content"}
+              </Card.Title>
+              {#if result.tags?.length}
+                <div class="flex flex-wrap gap-2 mt-2">
+                  {#each result.tags as tag}
+                    <span
+                      class="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
+                    >
+                      {tag}
+                    </span>
+                  {/each}
+                </div>
+              {/if}
+            </Card.Header>
+            <Card.Content>
+              <p class="text-muted-foreground">
+                {result.content?.substring(0, 200)}...
+              </p>
+            </Card.Content>
+            <Card.Footer class="flex justify-between items-center">
+              <span class="text-sm text-muted-foreground">
+                Relevance: {(parseFloat(result.similarity) * 100).toFixed(1)}%
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                on:click={() => (selectedContent = result)}
+              >
+                View Full Content
+              </Button>
+            </Card.Footer>
+          </Card.Root>
+        {/each}
+      </div>
+    {/if}
   </Tabs.Content>
 </Tabs.Root>
+
+<!-- Add Modal for Full Content -->
+<Dialog.Root
+  open={!!selectedContent}
+  onOpenChange={() => (selectedContent = null)}
+>
+  <Dialog.Content class="max-w-2xl max-h-[80vh]">
+    <Dialog.Header>
+      <Dialog.Title>{selectedContent?.title || "Content Details"}</Dialog.Title>
+    </Dialog.Header>
+
+    <div class="mt-4 overflow-y-auto max-h-[60vh]">
+      {#if selectedContent?.content}
+        <p class="whitespace-pre-wrap text-muted-foreground">
+          {selectedContent.content}
+        </p>
+      {/if}
+    </div>
+
+    <Dialog.Footer>
+      <Button variant="outline" on:click={() => (selectedContent = null)}>
+        Close
+      </Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>

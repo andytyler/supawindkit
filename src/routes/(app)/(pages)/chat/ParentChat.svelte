@@ -12,6 +12,7 @@
 
   let allTagIds: { id: number; title: string }[] = []
   let scrollAreaViewport: HTMLDivElement
+  let expandedSnippets: Record<number, boolean> = {}
 
   // Fetch tags on mount
   onMount(async () => {
@@ -124,27 +125,51 @@
             transition:fade
           >
             <div
-              class="flex max-w-[80%] flex-col gap-2 rounded-lg border bg-card p-4 text-card-foreground shadow-sm"
+              class="flex max-w-[80%] flex-col gap-2 rounded-lg border bg-card p-2 shadow-sm"
             >
-              <div class="prose prose-neutral dark:prose-invert max-w-none">
+              <div class="prose dark:prose-invert max-w-none">
                 {@html message.content}
               </div>
-              {#if message.snippets?.length}
-                <div class="mt-4 space-y-2">
-                  <h4 class="text-sm font-medium text-muted-foreground">
-                    Reference Snippets:
-                  </h4>
-                  {#each message.snippets as snippet}
-                    <div class="rounded-md bg-muted/50 p-3 text-sm">
-                      <p class="font-medium text-foreground">{snippet.title}</p>
-                      <p class="mt-1 text-muted-foreground">
-                        {snippet.content}
-                      </p>
-                    </div>
-                  {/each}
-                </div>
-              {/if}
             </div>
+
+            {#if message.snippets?.length}
+              <div class="w-full max-w-[80%]">
+                <button
+                  class="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  on:click={() => (expandedSnippets[i] = !expandedSnippets[i])}
+                >
+                  <svg
+                    class="w-4 h-4 transition-transform {expandedSnippets[i]
+                      ? 'rotate-90'
+                      : ''}"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                  Reference Snippets ({message.snippets.length})
+                </button>
+                {#if expandedSnippets[i]}
+                  <div class="mt-2 space-y-2">
+                    {#each message.snippets as snippet}
+                      <div class="rounded-md bg-muted/50 p-3 text-sm">
+                        <p class="font-medium text-foreground">
+                          {snippet.title || "Knowledge Base Snippet"}
+                        </p>
+                        <p class="mt-1 text-muted-foreground">
+                          {snippet.content}
+                        </p>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {/if}
           </div>
         {/each}
       </div>

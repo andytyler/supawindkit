@@ -1,72 +1,160 @@
 <script lang="ts">
+  import { Badge } from "$components/ui/badge"
+  import { WebsiteLogo, WebsiteName } from "$config"
   import * as Avatar from "$lib/components/ui/avatar"
+  import { Button } from "$lib/components/ui/button"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
-  import { Button } from "$components/ui/button"
+  import Moon from "lucide-svelte/icons/moon"
+  import Sun from "lucide-svelte/icons/sun"
+  import { ModeWatcher, resetMode, setMode } from "mode-watcher"
 
-  // This should come from your auth store or layout data
-  export let user = {
-    name: "John Doe",
-    email: "john@example.com",
-    imageUrl: "https://github.com/shadcn.png",
-  }
+  // Get data from layout.server.ts
+  export let data
+
+  // Destructure the user data from the server
+  const { user, profile, isActiveCustomer, currentPlanId } = data
+
+  // Navigation items
+  const navItems = [
+    // { href: "/chat", label: "Chat" },
+    // { href: "/docs", label: "Docs" },
+    // { href: "/settings", label: "Settings" },
+  ]
 </script>
 
-<div class="min-h-screen flex flex-col">
-  <header class="border-b">
-    <div class="flex h-16 items-center px-4 container mx-auto">
-      <div class="flex items-center gap-4 flex-1">
-        <a href="/" class="font-semibold text-xl">Supafetch</a>
-        
-        <nav class="hidden md:flex items-center gap-6 mx-6">
-          <a href="/chat" class="text-sm font-medium hover:text-primary">Chat</a>
-          <a href="/docs" class="text-sm font-medium hover:text-primary">Docs</a>
-          <a href="/settings" class="text-sm font-medium hover:text-primary">Settings</a>
-        </nav>
-      </div>
+<ModeWatcher />
 
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild let:builder>
-          <Button
-            variant="ghost"
-            builders={[builder]}
-            class="relative flex items-center gap-2 h-8 px-3 rounded-full hover:bg-accent"
-          >
-            <Avatar.Root class="h-8 w-8">
-              <Avatar.Image
-                src={user.imageUrl}
-                alt={user.name}
-                class="object-cover"
-              />
-              <Avatar.Fallback class="bg-muted">{user.name.charAt(0)}</Avatar.Fallback>
-            </Avatar.Root>
-            <span class="text-sm font-medium">{user.name}</span>
-          </Button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content class="w-56" align="end">
-          <DropdownMenu.Label class="font-normal">
-            <div class="flex flex-col space-y-1">
-              <p class="text-sm font-medium leading-none">{user.name}</p>
-              <p class="text-xs leading-none text-muted-foreground">{user.email}</p>
-            </div>
-          </DropdownMenu.Label>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Group>
-            <DropdownMenu.Item>
-              <a href="/account/settings" class="w-full">Profile</a>
+<div class="min-h-screen flex flex-col">
+  <header class="border-b bg-background border-border">
+    <div class="mx-4">
+      <nav class="flex h-16 items-center justify-between">
+        <!-- Logo -->
+        <a
+          href="/"
+          class="text-xl flex items-center gap-2 text-secondary-foreground italic uppercase font-extrabold tracking-tight transition-colors hover:text-primary"
+        >
+          <div class="flex items-center gap-2 rounded-lg">
+            <img
+              src={WebsiteLogo}
+              alt={WebsiteName + " logo"}
+              class="h-8 w-auto invert-0 dark:invert-100 transition-all duration-300 rounded-lg"
+            />
+          </div>
+          <span>{WebsiteName}</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-6 mx-6">
+          {#each navItems as item}
+            <a
+              href={item.href}
+              class="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              {item.label}
+            </a>
+          {/each}
+        </nav>
+
+        <!-- User Menu -->
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild let:builder>
+            <Button variant="ghost" builders={[builder]}>
+              <Avatar.Root class="h-8 w-8">
+                <Avatar.Image
+                  src={profile?.avatar_url || user.user_metadata?.avatar_url}
+                  alt={profile?.full_name || user.email}
+                  class="object-cover"
+                />
+                <Avatar.Fallback class="bg-muted">
+                  {(profile?.full_name || user.email)?.charAt(0).toUpperCase()}
+                </Avatar.Fallback>
+              </Avatar.Root>
+              <span class="text-sm pl-2 font-medium hidden md:inline-block">
+                {profile?.full_name || user.email}
+              </span>
+            </Button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content class="w-56" align="end">
+            <DropdownMenu.Label class="font-normal">
+              <div class="flex flex-col space-y-1">
+                <p class="text-sm font-medium leading-none">
+                  {profile?.full_name || user.email}
+                </p>
+                <p class="text-xs leading-none text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </DropdownMenu.Label>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Label>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-muted-foreground">Current Plan</span>
+                <Badge
+                  variant={isActiveCustomer ? "default" : "outline"}
+                  class="text-xs"
+                >
+                  {isActiveCustomer ? "Pro" : "Free"}
+                </Badge>
+              </div>
+            </DropdownMenu.Label>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Group>
+              <DropdownMenu.Item>
+                <a href="/account/settings" class="w-full">Profile</a>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item>
+                <a href="/account/billing" class="w-full">
+                  {isActiveCustomer ? "Manage Subscription" : "Upgrade Plan"}
+                </a>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item>
+                <a href="/account/settings" class="w-full">Settings</a>
+              </DropdownMenu.Item>
+            </DropdownMenu.Group>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Label>
+              <span class="text-xs text-muted-foreground">Theme</span>
+            </DropdownMenu.Label>
+            <DropdownMenu.Item on:click={() => setMode("light")}>
+              <div class="flex items-center gap-2">
+                <Sun class="h-4 w-4" />
+                <span>Light</span>
+              </div>
             </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <a href="/account/billing" class="w-full">Billing</a>
+            <DropdownMenu.Item on:click={() => setMode("dark")}>
+              <div class="flex items-center gap-2">
+                <Moon class="h-4 w-4" />
+                <span>Dark</span>
+              </div>
             </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              <a href="/account/settings" class="w-full">Settings</a>
+            <DropdownMenu.Item on:click={() => resetMode()}>
+              <div class="flex items-center gap-2">
+                <svg
+                  class="h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+                <span>System</span>
+              </div>
             </DropdownMenu.Item>
-          </DropdownMenu.Group>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Item>
-            <a href="/account/sign_out" class="w-full">Log out</a>
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item>
+              <form action="/account/api?/signout" method="POST" class="w-full">
+                <button type="submit" class="w-full text-left">Log out</button>
+              </form>
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </nav>
     </div>
   </header>
 

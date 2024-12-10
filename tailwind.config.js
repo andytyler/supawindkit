@@ -154,6 +154,19 @@ const config = {
           },
         },
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            p: {
+              color: "var(--foreground)",
+              fontSize: "0.875rem",
+              lineHeight: "1.5rem",
+              marginTop: "0.75rem",
+              marginBottom: "0.75rem",
+            },
+          },
+        },
+      },
     },
   },
 }

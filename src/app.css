@@ -45,10 +45,14 @@
     --accent-foreground: 35 15% 90%;
     --destructive: 0 95% 65%;
     --destructive-foreground: 0 0% 100%;
-    --border: 225 35% 10%;
-    --input: 225 35% 10%;
+    --border: 24 20% 9%;
+    --input: 42 20% 20%;
     --ring: 250 98% 70%;
     --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
   }
 }
 
