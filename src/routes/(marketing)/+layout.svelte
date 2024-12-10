@@ -25,6 +25,10 @@
       links: [
         { label: "Blog Posts", href: "/blog" },
         { label: "Company", href: "/blog" },
+        { label: "Pricing", href: "/pricing" },
+        { label: "Login", href: "/login" },
+        { label: "Signup", href: "/signup" },
+        { label: "Account", href: "/account" },
       ],
     },
     social_anton: {
@@ -132,7 +136,7 @@
     <slot />
   </div>
 
-  <footer class="border-t mt-auto">
+  <footer class="border-t border-border/50 mt-auto">
     <div class="container mx-auto">
       <div class="flex flex-col md:flex-row justify-between gap-8 py-8">
         <!-- About Section -->
@@ -182,10 +186,17 @@
       </div>
 
       <div
-        class="mt-8 py-8 px-4 border-t text-left text-sm text-muted-foreground"
+        class="mt-8 py-8 px-4 border-t border-border/90 text-left text-sm text-muted-foreground"
       >
         <p>
-          © {new Date().getFullYear()} SpikeJam. Made with ❤️ in 🇬🇧 & 🇺🇸.
+          © {new Date().getFullYear()} Supafetch. Made with
+          <span class="text-pink-700 uppercase font-semibold">Jam</span> by the
+          <a
+            href="https://spikejam.com"
+            target="_blank"
+            class=" uppercase hover:underline font-semibold italic">SpikeJam</a
+          >
+          team.
         </p>
       </div>
     </div>
