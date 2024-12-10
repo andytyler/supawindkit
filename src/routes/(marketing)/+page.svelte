@@ -103,7 +103,7 @@
           <h1
             class="max-w-4xl mx-auto text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8"
           >
-            <span class="block text-foreground leading-tight">Chat for you</span
+            <span class="block text-foreground leading-tight">Chat to your</span
             >
             <span
               class="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent
@@ -117,8 +117,7 @@
           <p
             class="max-w-2xl mx-auto text-xl text-foreground/60 mb-12 leading-relaxed"
           >
-            Create engaging content, optimize your posting schedule, and grow
-            your audience with AI-powered insights.
+            Chat to your knowledgebase to get answers to your questions.
           </p>
 
           <!-- Enhanced CTAs -->
