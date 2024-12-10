@@ -24,7 +24,7 @@
       title: "Quick Links",
       links: [
         { label: "Blog Posts", href: "/blog" },
-        { label: "About Us", href: "/about" },
+        { label: "Company", href: "/blog" },
       ],
     },
     social_anton: {
