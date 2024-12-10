@@ -1,40 +1,37 @@
 <script lang="ts">
-  import { DotBackground } from "$lib/components/ui/GridAndDotBackground"
-  import { ArrowRight, Sparkles } from "lucide-svelte"
-  import { WebsiteBaseUrl, WebsiteDescription, WebsiteName } from "../../config"
-  import type { ActionData } from "./$types"
+  import FloatingCards from "./FloatingCards.svelte"
 
-  export let data
-  export let form: ActionData
+  import { Button } from "$components/ui/button"
+  import { DotBackground } from "$components/ui/GridAndDotBackground"
+  import { WebsiteBaseUrl, WebsiteDescription, WebsiteName } from "$config"
+  import { ArrowRight, Sparkles } from "lucide-svelte"
 
   const features = [
     {
-      icon: "🤖",
-      title: "Smart Indexing",
-      desc: "Automatically indexes and understands your entire website content",
+      icon: "✨",
+      title: "AI Caption Generator",
+      desc: "Create engaging captions that boost engagement and reach",
       gradient: "from-blue-500/20 via-blue-500/10 to-transparent",
     },
     {
-      icon: "⚡",
-      title: "Lightning Fast",
-      desc: "Get instant answers from your website content",
+      icon: "📊",
+      title: "Analytics Insights",
+      desc: "Track performance and optimize your content strategy",
       gradient: "from-yellow-500/20 via-yellow-500/10 to-transparent",
     },
     {
       icon: "🎯",
-      title: "Precise Answers",
-      desc: "Context-aware responses from your exact content",
+      title: "Smart Scheduling",
+      desc: "Post at the perfect time for maximum engagement",
       gradient: "from-green-500/20 via-green-500/10 to-transparent",
     },
     {
       icon: "🔄",
-      title: "Always Fresh",
-      desc: "Content stays current with automatic updates",
+      title: "Multi-Platform",
+      desc: "Manage all your social accounts in one place",
       gradient: "from-purple-500/20 via-purple-500/10 to-transparent",
     },
   ]
-
-  const companies = ["Company 1", "Company 2", "Company 3", "Company 4"]
 
   const ldJson = {
     "@context": "https://schema.org",
@@ -42,9 +39,7 @@
     name: WebsiteName,
     url: WebsiteBaseUrl,
   }
-  const jsonldScript = `<script type="application/ld+json">${
-    JSON.stringify(ldJson) + "<"
-  }/script>`
+  const jsonldScript = `<script type="application/ld+json">${JSON.stringify(ldJson) + "<"}/script>`
 </script>
 
 <svelte:head>
@@ -56,7 +51,7 @@
 <main class="relative min-h-screen bg-background antialiased">
   <DotBackground showFade={true}>
     <div class="relative w-full">
-      <!-- Enhanced gradient background - make it full width -->
+      <!-- Enhanced gradient background -->
       <div class="absolute inset-0 w-full">
         <div
           class="absolute inset-0 w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/30 via-background/40 to-background"
@@ -66,40 +61,7 @@
       <div
         class="relative max-w-7xl mx-auto px-6 pt-20 pb-24 sm:pt-32 sm:pb-32 w-full"
       >
-        <!-- Floating Cards -->
-        <div class="absolute left-10 top-20 animate-float-slow">
-          <div
-            class="bg-card backdrop-blur-xl rounded-2xl p-4 shadow-lg rotate-[-12deg]
-                      border border-foreground/10 hover:border-foreground/20 transition-all duration-300"
-          >
-            <div class="flex items-center gap-3">
-              <div
-                class="w-8 h-8 bg-background/5 rounded-lg flex items-center justify-center"
-              >
-                <span class="text-foreground/80">🔍</span>
-              </div>
-              <div class="text-sm text-foreground/80">Indexing website...</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="absolute right-10 top-40 animate-float">
-          <div
-            class="bg-card backdrop-blur-xl rounded-2xl p-4 shadow-lg rotate-[8deg]
-                      border border-foreground/10 hover:border-foreground/20 transition-all duration-300"
-          >
-            <div class="flex items-center gap-3">
-              <div
-                class="w-8 h-8 bg-background/5 rounded-lg flex items-center justify-center"
-              >
-                <span class="text-foreground/80">💬</span>
-              </div>
-              <div class="text-sm text-foreground/80">
-                AI processing complete
-              </div>
-            </div>
-          </div>
-        </div>
+        <FloatingCards />
 
         <!-- Main Content -->
         <div class="relative z-10 text-center">
@@ -107,72 +69,69 @@
           <div class="flex justify-center mb-16">
             <a
               href="/blog"
-              class="group relative flex items-center gap-2 px-4 py-2
-                      bg-primary/5 hover:bg-primary/10
-                      backdrop-blur-md
-                      border border-primary/10
-                      rounded-full
-                      transition-all duration-300 hover:scale-102
-                      text-sm text-foreground/80"
+              class="group relative flex items-center gap-2 px-6 py-2.5
+                     bg-gradient-to-r from-card via-card to-card
+                     hover:from-primary/20 hover:via-primary/10 hover:to-primary/20
+                     backdrop-blur-md
+                     border border-primary/20
+                     rounded-full
+                     transition-all duration-500 ease-out hover:scale-[1.02]
+                     shadow-[0_0_15px_rgba(var(--primary),0.1)] hover:shadow-[0_0_30px_rgba(var(--primary),0.2)]
+                     text-sm text-foreground/90"
             >
-              <Sparkles class="h-3.5 w-3.5 text-primary" />
-              <span class="font-medium">
-                New: Our AI integration just landed
-              </span>
-              <ArrowRight
-                class="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+              <!-- Animated glow effect -->
+              <div
+                class="absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 blur-xl
+                       opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               />
+
+              <!-- Content wrapper -->
+              <div class="relative flex items-center gap-2">
+                <Sparkles class="h-4 w-4 text-primary animate-pulse" />
+                <span class="font-semibold tracking-wide">
+                  New: AI-powered knowledgebase chat
+                </span>
+                <ArrowRight
+                  class="h-4 w-0 group-hover:w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 
+                         transition-all duration-300 ease-out"
+                />
+              </div>
             </a>
           </div>
 
           <!-- Enhanced Title -->
           <h1
-            class="max-w-4xl mx-auto text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight mb-8"
+            class="max-w-4xl mx-auto text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8"
           >
-            <span class="block text-foreground leading-tight">Perform</span>
+            <span class="block text-foreground leading-tight">Chat for you</span
+            >
             <span
               class="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent
-                       animate-gradient-x hover:scale-105 transition-transform duration-300 inline-block"
+                        animate-gradient-x hover:scale-105 transition-transform duration-300 inline-block"
             >
-              RAG
+              knowledgebase
             </span>
-            <span class="block text-foreground/90 leading-tight"
-              >On Any Website</span
-            >
+            <span class="block text-foreground/90 leading-tight"> with AI</span>
           </h1>
 
           <p
             class="max-w-2xl mx-auto text-xl text-foreground/60 mb-12 leading-relaxed"
           >
-            Transform your website into an intelligent knowledge base. Get
-            instant, accurate answers powered by AI.
+            Create engaging content, optimize your posting schedule, and grow
+            your audience with AI-powered insights.
           </p>
 
           <!-- Enhanced CTAs -->
           <div class="flex flex-col sm:flex-row gap-6 justify-center mb-20">
-            <a
-              href="/dashboard"
-              class="group relative px-8 py-4 text-lg font-medium
-                      bg-primary hover:bg-primary/90
-                      text-primary-foreground rounded-full
-                      transition-all duration-300 hover:scale-105
-                      shadow-[0_0_15px_rgba(var(--primary),0.5)]"
-            >
-              Start for Free
+            <Button href="/dashboard" size="lg">
+              Start Now Free
               <ArrowRight
                 class="inline-block ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
               />
-            </a>
-            <a
-              href="/demo"
-              class="px-8 py-4 text-lg font-medium
-                      bg-foreground/5 hover:bg-foreground/10
-                      text-foreground rounded-full
-                      transition-all duration-300 hover:scale-105
-                      border border-foreground/10 hover:border-foreground/20"
-            >
-              Try Demo
-            </a>
+            </Button>
+            <Button variant="outline" href="/cal" size="lg">
+              Speak to a human
+            </Button>
           </div>
 
           <!-- Enhanced Feature Grid -->
@@ -182,16 +141,16 @@
             {#each features as feature}
               <div
                 class="group relative overflow-hidden rounded-2xl p-8
-                          bg-gradient-to-br from-primary/5 via-background to-transparent
-                          hover:bg-gradient-to-br hover:from-primary/20 hover:via-primary/5 hover:to-transparent
-                          backdrop-blur-xl border border-primary/10 hover:border-primary/30
-                          transition-all duration-500
-                          shadow-[0_0_15px_rgba(var(--primary),0.1)] hover:shadow-[0_0_30px_rgba(var(--primary),0.2)]"
+                       bg-gradient-to-br from-primary/5 via-background to-transparent
+                       hover:bg-gradient-to-br hover:from-primary/20 hover:via-primary/5 hover:to-transparent
+                       backdrop-blur-xl border border-primary/10 hover:border-primary/30
+                       transition-all duration-500
+                       shadow-[0_0_15px_rgba(var(--primary),0.1)] hover:shadow-[0_0_30px_rgba(var(--primary),0.2)]"
               >
                 <!-- Decorative gradient orb -->
                 <div
                   class="absolute -top-10 -right-10 w-20 h-20 bg-gradient-to-br from-primary/20 to-transparent
-                            rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"
+                         rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"
                 ></div>
 
                 <span

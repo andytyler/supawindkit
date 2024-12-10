@@ -64,9 +64,7 @@
 {/if}
 
 <div class="min-h-screen flex flex-col">
-  <header
-    class="fixed w-full top-0 z-40 border-b bg-background/80 backdrop-blur-sm"
-  >
+  <header class="fixed w-full top-0 z-40 backdrop-blur-xl">
     <div class="container mx-auto">
       <nav class="flex h-16 items-center justify-between">
         <a
@@ -86,7 +84,7 @@
         </a>
 
         <div class="flex items-center gap-6 uppercase">
-          {#each [{ label: "Chat", href: "/chat" }, { label: "Blog", href: "/blog" }, { label: "Search", href: "/" }, { label: "Pricing", href: "/pricing" }, { label: "Login", href: "/login" }] as link}
+          {#each [{ label: "App", href: "/chat" }, { label: "Blog", href: "/blog" }, { label: "Search", href: "/" }, { label: "Pricing", href: "/pricing" }, { label: "Login", href: "/login" }] as link}
             <Button
               href={link.href}
               variant="link"
@@ -130,6 +128,7 @@
     </div>
   </header>
   <div class="pt-16">
+    <!-- I removed pt-16 from here -->
     <slot />
   </div>
 
