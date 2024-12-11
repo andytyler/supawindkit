@@ -6,8 +6,6 @@ import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette"
 // const defaultTheme = require("tailwindcss/defaultTheme")
 // const colors = require("tailwindcss/colors")
 
-
-
 function addVariablesForColors({ addBase, theme }) {
   let allColors = flattenColorPalette(theme("colors"))
   let newVars = Object.fromEntries(
