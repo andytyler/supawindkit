@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 import aspectRatio from "@tailwindcss/aspect-ratio"
+import typography from "@tailwindcss/typography"
+import daisyui from "daisyui"
 import svgToDataUri from "mini-svg-data-uri"
 import { fontFamily } from "tailwindcss/defaultTheme"
 import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette"
@@ -20,8 +22,8 @@ function addVariablesForColors({ addBase, theme }) {
 /** @type {import('tailwindcss').Config} */
 const config = {
   plugins: [
-    require("@tailwindcss/typography"),
-    require("daisyui"),
+    typography,
+    daisyui,
     aspectRatio,
     addVariablesForColors,
     addVariablesForColors,
