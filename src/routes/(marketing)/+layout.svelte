@@ -3,7 +3,9 @@
   import { WebsiteDescription, WebsiteLogo, WebsiteName } from "$config"
   import { Button } from "$lib/components/ui/button"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
+  import * as Sheet from "$lib/components/ui/sheet"
   import ExternalLink from "lucide-svelte/icons/external-link"
+  import Menu from "lucide-svelte/icons/menu"
   import Moon from "lucide-svelte/icons/moon"
   import Sun from "lucide-svelte/icons/sun"
   import { ModeWatcher, resetMode, setMode } from "mode-watcher"
@@ -55,6 +57,14 @@
       ],
     },
   }
+
+  const navigationLinks = [
+    { label: "App", href: "/chat" },
+    { label: "Blog", href: "/blog" },
+    { label: "Search", href: "/" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Login", href: "/login" },
+  ]
 </script>
 
 <ModeWatcher />
@@ -86,8 +96,9 @@
           >
         </a>
 
-        <div class="flex items-center gap-6 uppercase">
-          {#each [{ label: "App", href: "/chat" }, { label: "Blog", href: "/blog" }, { label: "Search", href: "/" }, { label: "Pricing", href: "/pricing" }, { label: "Login", href: "/login" }] as link}
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center gap-6 uppercase">
+          {#each navigationLinks as link}
             <Button
               href={link.href}
               variant="link"
@@ -126,6 +137,74 @@
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div class="flex items-center gap-4 md:hidden">
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild let:builder>
+              <Button
+                builders={[builder]}
+                variant="ghost"
+                size="icon"
+                class="h-9 w-9"
+              >
+                <Sun
+                  class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                />
+                <Moon
+                  class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                />
+                <span class="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end">
+              <DropdownMenu.Item on:click={() => setMode("light")}>
+                Light
+              </DropdownMenu.Item>
+              <DropdownMenu.Item on:click={() => setMode("dark")}>
+                Dark
+              </DropdownMenu.Item>
+              <DropdownMenu.Item on:click={() => resetMode()}>
+                System
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+
+          <Sheet.Root>
+            <Sheet.Trigger asChild let:builder>
+              <Button
+                builders={[builder]}
+                variant="ghost"
+                size="icon"
+                class="h-9 w-9"
+              >
+                <Menu class="h-[1.2rem] w-[1.2rem]" />
+                <span class="sr-only">Open menu</span>
+              </Button>
+            </Sheet.Trigger>
+            <Sheet.Content side="right" class="w-[300px]">
+              <Sheet.Header>
+                <Sheet.Title class="text-left">{WebsiteName}</Sheet.Title>
+                <Sheet.Description
+                  class="text-left text-sm text-muted-foreground"
+                >
+                  Navigation
+                </Sheet.Description>
+              </Sheet.Header>
+              <div class="flex flex-col gap-4 mt-4">
+                {#each navigationLinks as link}
+                  <Button
+                    href={link.href}
+                    variant="ghost"
+                    class="w-full justify-start text-lg"
+                  >
+                    {link.label}
+                  </Button>
+                {/each}
+              </div>
+            </Sheet.Content>
+          </Sheet.Root>
         </div>
       </nav>
     </div>
