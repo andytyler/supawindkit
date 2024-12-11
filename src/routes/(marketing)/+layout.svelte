@@ -27,7 +27,6 @@
         { label: "Company", href: "/blog" },
         { label: "Pricing", href: "/pricing" },
         { label: "Login", href: "/login" },
-        { label: "Signup", href: "/signup" },
         { label: "Account", href: "/account" },
       ],
     },
@@ -192,7 +191,7 @@
           © {new Date().getFullYear()} Supafetch. Made with
           <span class="text-pink-700 uppercase font-semibold">Jam</span> by the
           <a
-            href="https://spikejam.com"
+            href="https://spikejam.org"
             target="_blank"
             class=" uppercase hover:underline font-semibold italic">SpikeJam</a
           >
