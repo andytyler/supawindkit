@@ -5,8 +5,6 @@ import daisyui from "daisyui"
 import svgToDataUri from "mini-svg-data-uri"
 import { fontFamily } from "tailwindcss/defaultTheme"
 import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette"
-// const defaultTheme = require("tailwindcss/defaultTheme")
-// const colors = require("tailwindcss/colors")
 
 function addVariablesForColors({ addBase, theme }) {
   let allColors = flattenColorPalette(theme("colors"))

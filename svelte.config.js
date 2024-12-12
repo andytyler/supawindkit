@@ -1,23 +1,23 @@
 import adapter from "@sveltejs/adapter-node"
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte"
-import path from "path"
+import { dirname, resolve } from "path"
+import { fileURLToPath } from "url"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   kit: {
     alias: {
-      $components: path.resolve("./src/lib/components"), // Define the $lib alias
-      $lib: path.resolve("./src/lib"), // Define the $lib alias
-      $utils: path.resolve("./src/lib/utils"), // Define the $lib alias
-      $server: path.resolve("./src/lib/server"), // Define the $lib alias
-      $types: path.resolve("./src/lib/types"), // Define the $lib alias
-      $stores: path.resolve("./src/stores"), // Define the $lib alias
-      $config: path.resolve("./src/config"), // Define the $lib alias
+      $components: resolve(__dirname, "./src/lib/components"),
+      $lib: resolve(__dirname, "./src/lib"),
+      $utils: resolve(__dirname, "./src/lib/utils"),
+      $server: resolve(__dirname, "./src/lib/server"),
+      $types: resolve(__dirname, "./src/lib/types"),
+      $stores: resolve(__dirname, "./src/stores"),
+      $config: resolve(__dirname, "./src/config"),
     },
-
-    // adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.
-    // If your environment is not supported or you settled on a specific environment, switch out the adapter.
-    // See https://kit.svelte.dev/docs/adapters for more information about adapters.
     adapter: adapter(),
   },
   preprocess: vitePreprocess(),
