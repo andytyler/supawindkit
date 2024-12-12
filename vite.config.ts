@@ -1,5 +1,5 @@
 import { sveltekit } from "@sveltejs/kit/vite"
-import { defineConfig } from "vitest/config"
+import { defineConfig } from "vite"
 import { buildAndCacheSearchIndex } from "./src/lib/build_index"
 
 export default defineConfig({
@@ -21,4 +21,12 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{js,ts}"],
     globals: true, /// allows to skip import of test functions like `describe`, `it`, `expect`, etc.
   },
+  build: {
+    rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'MIXED_EXPORTS') return;
+        warn(warning);
+      }
+    }
+  }
 })

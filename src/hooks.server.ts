@@ -7,6 +7,16 @@ import {
 import { createServerClient } from "@supabase/ssr"
 import { createClient } from "@supabase/supabase-js"
 import type { Handle } from "@sveltejs/kit"
+import { webcrypto } from 'node:crypto';
+
+if (!globalThis.crypto) {
+    // @ts-ignore
+    globalThis.crypto = webcrypto;
+}
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 export const handle: Handle = async ({ event, resolve }) => {
   const cookiesToSet: { name: string; value: string; options: any }[] = []
