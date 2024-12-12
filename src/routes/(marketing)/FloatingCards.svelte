@@ -197,7 +197,7 @@
     <div class="relative flex flex-col gap-3">
       <div class="flex items-center justify-between mb-2">
         <span class="text-sm font-medium text-foreground/80"
-          >Document Processing</span
+          >Web Page Scraping</span
         >
         <span
           class="text-xs bg-blue-500/20 text-blue-500 px-2 py-0.5 rounded-full"
@@ -208,10 +208,10 @@
         <div
           class="flex items-center gap-2 bg-background/50 p-2 rounded-lg border border-foreground/5"
         >
-          <span class="text-blue-500">📄</span>
+          <span class="text-blue-500">🌐</span>
           <div class="flex-1">
             <div class="text-xs font-medium text-foreground/70">
-              technical_docs.pdf
+              https://technical.com/docs
             </div>
             <div class="w-full h-1 bg-blue-500/20 rounded-full mt-1">
               <div
