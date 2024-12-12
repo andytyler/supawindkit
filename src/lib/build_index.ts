@@ -1,9 +1,9 @@
-import path from "path"
 import fs from "fs"
-import glob from "glob"
+import Fuse from "fuse.js"
+import * as glob from "glob"
 import { convert } from "html-to-text"
 import JSDOM from "jsdom"
-import Fuse from "fuse.js"
+import path from "path"
 
 const excludePaths = ["/search"]
 
