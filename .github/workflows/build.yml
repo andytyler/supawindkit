@@ -7,6 +7,15 @@ env:
   PUBLIC_SUPABASE_ANON_KEY: "fake_anon_key"
   PRIVATE_SUPABASE_SERVICE_ROLE: "fake_service_role"
   PRIVATE_STRIPE_API_KEY: "fake_strip_api_key"
+  OPENAI_API_KEY: "fake_openai_api_key"
+  NOTION_CLIENT_ID: "fake_notion_client_id"
+  NOTION_CLIENT_SECRET: "fake_notion_client_secret"
+  NOTION_REDIRECT_URI: "fake_notion_redirect_uri"
+  NOTION_API_KEY: "fake_notion_api_key"
+  GROQ_API_KEY: "fake_groq_api_key"
+  SUPABASE_SERVICE_ROLE_KEY: "fake_supabase_service_role_key"
+  PRODIA_TOKEN: "fake_prodia_token"
+  RESEND_API_KEY: "fake_resend_api_key"
 
 jobs:
   build_and_test:
