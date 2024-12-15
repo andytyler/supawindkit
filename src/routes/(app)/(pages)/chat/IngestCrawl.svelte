@@ -40,7 +40,7 @@
     delayed: searchDelayed,
   } = superForm(data.searchForm, {})
 
-  $: console.log(form?.search_results)
+  // $: console.log(form?.search_results)
 
   // Add state for the modal
   let selectedContent: { title?: string; content: string } | null = null

@@ -36,11 +36,16 @@ const searchFormSchema = z.object({
 });
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const { session } = await locals.safeGetSession();
-  const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
-  const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
-  const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
-  return { crawlForm, textForm, searchForm, session };
+  try {
+    const { session } = await locals.safeGetSession();
+    const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
+    const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
+    const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
+    return { crawlForm, textForm, searchForm, session };
+  } catch (error) {
+    console.error('Error in page load:', error);
+    throw error;
+  }
 };
 
 export const actions: Actions = {
