@@ -70,8 +70,9 @@ export const actions: Actions = {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          url: crawlForm.data.input_url,
-          title: crawlForm.data.crawl_title
+          input_url: crawlForm.data.input_url,
+          crawl_title: crawlForm.data.crawl_title,
+          depth: crawlForm.data.depth
         })
       });
 
