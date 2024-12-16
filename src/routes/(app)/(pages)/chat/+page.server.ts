@@ -50,7 +50,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-  crawl: async ({ request, locals }) => {
+  crawl: async ({ request, locals, fetch  }) => {
     console.log('Crawl action called');
     const crawlForm = await superValidate(request, zod(crawlFormSchema));
 
@@ -86,7 +86,7 @@ export const actions: Actions = {
     }
   },
 
-  text: async ({ request, locals }) => {
+  text: async ({ request, locals, fetch }) => {
     console.log('Text action called');
     const textForm = await superValidate(request, zod(textFormSchema));
 
@@ -130,7 +130,7 @@ export const actions: Actions = {
     }
   },
 
-  search: async ({ request, locals }) => {
+  search: async ({ request, locals, fetch }) => {
     console.log('Search action called');
     // const formData = await request.formData();
     // const parseResult = searchFormSchema.safeParse({
