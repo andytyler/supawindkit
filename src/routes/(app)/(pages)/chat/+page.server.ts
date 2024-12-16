@@ -1,73 +1,67 @@
 import { crawlWebsite, saveContent, searchSimilarContent } from '$lib/server/extrapolate/extrapolate-limited-md';
 import { fail } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
+
+
+
+const crawlFormSchema = z.object({
+  crawl_title: z
+    .string()
+    .min(1, "Title is required")
+    .refine((value) => !value.includes(" "), {
+      message: "Title must not contain spaces",
+    }),
+  input_url: z.string().url("Please enter a valid URL"),
+  depth: z.number().min(0).max(3),
+});
+
+const textFormSchema = z.object({
+  textTitle: z
+    .string()
+    .min(1, "Title is required")
+    .refine((value) => !value.includes(" "), {
+      message: "Title must not contain spaces",
+    }),
+  textContent: z.string().min(1, "Content is required"),
+});
+
+const searchFormSchema = z.object({
+  searchQuery: z
+    .string()
+    .min(1, "Search query is required"),
+  selectedTags: z.array(z.string()),
+});
 
 export const load: PageServerLoad = async ({ locals }) => {
   try {
     const { session } = await locals.safeGetSession();
-    // Return session if needed
+    const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
+    const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
+    const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
+    return { crawlForm, textForm, searchForm, session };
   } catch (error) {
     console.error('Error in page load:', error);
     throw error;
   }
 };
 
-// Simple validation functions
-const validateCrawlForm = (data: { crawl_title: string; input_url: string; depth: number }) => {
-  const errors: Record<string, string> = {};
-  
-  if (!data.crawl_title) errors.crawl_title = "Title is required";
-  if (data.crawl_title?.includes(" ")) errors.crawl_title = "Title must not contain spaces";
-  if (!data.input_url) errors.input_url = "URL is required";
-  if (!isValidUrl(data.input_url)) errors.input_url = "Please enter a valid URL";
-  if (data.depth < 0 || data.depth > 3) errors.depth = "Depth must be between 0 and 3";
-
-  return { isValid: Object.keys(errors).length === 0, errors };
-};
-
-const validateTextForm = (data: { textTitle: string; textContent: string }) => {
-  const errors: Record<string, string> = {};
-  
-  if (!data.textTitle) errors.textTitle = "Title is required";
-  if (data.textTitle?.includes(" ")) errors.textTitle = "Title must not contain spaces";
-  if (!data.textContent) errors.textContent = "Content is required";
-
-  return { isValid: Object.keys(errors).length === 0, errors };
-};
-
-const validateSearchForm = (data: { searchQuery: string; selectedTags: string[] }) => {
-  const errors: Record<string, string> = {};
-  
-  if (!data.searchQuery) errors.searchQuery = "Search query is required";
-
-  return { isValid: Object.keys(errors).length === 0, errors };
-};
-
-// Helper function to validate URLs
-const isValidUrl = (url: string) => {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
 export const actions: Actions = {
-  crawl: async ({ request, locals }) => {
+  crawl: async ({ request, locals, url , cookies}) => {
     const formData = await request.formData();
-    const data = {
-      crawl_title: formData.get('crawl_title') as string,
-      input_url: formData.get('input_url') as string,
+    const parseResult = crawlFormSchema.safeParse({
+      crawl_title: formData.get('crawl_title'),
+      input_url: formData.get('input_url'),
       depth: Number(formData.get('depth')),
-    };
+    });
 
-    const validation = validateCrawlForm(data);
-    if (!validation.isValid) {
-      return fail(400, {
-        crawl: {
-          errors: validation.errors,
-          data
+    if (!parseResult.success) {
+      return fail(400, { 
+        crawl: { 
+          errors: parseResult.error.flatten().fieldErrors,
+          data: Object.fromEntries(formData)
         }
       });
     }
@@ -78,7 +72,7 @@ export const actions: Actions = {
     }
 
     try {
-      await crawlWebsite(user, data.input_url, data.depth, data.crawl_title);
+      await crawlWebsite(user, parseResult.data.input_url, parseResult.data.depth, parseResult.data.crawl_title);
       return { crawl: { success: 'Crawl completed successfully!' } };
     } catch (err) {
       console.error('Crawl error:', err);
@@ -88,17 +82,16 @@ export const actions: Actions = {
 
   text: async ({ request, locals }) => {
     const formData = await request.formData();
-    const data = {
-      textTitle: formData.get('textTitle') as string,
-      textContent: formData.get('textContent') as string,
-    };
+    const parseResult = textFormSchema.safeParse({
+      textTitle: formData.get('textTitle'),
+      textContent: formData.get('textContent'),
+    });
 
-    const validation = validateTextForm(data);
-    if (!validation.isValid) {
-      return fail(400, {
-        text: {
-          errors: validation.errors,
-          data
+    if (!parseResult.success) {
+      return fail(400, { 
+        text: { 
+          errors: parseResult.error.flatten().fieldErrors,
+          data: Object.fromEntries(formData)
         }
       });
     }
@@ -109,7 +102,7 @@ export const actions: Actions = {
     }
 
     try {
-      await saveContent('text', data.textContent, data.textTitle, user.id);
+      await saveContent('text', parseResult.data.textContent, parseResult.data.textTitle, user.id);
       return { text: { success: 'Content saved successfully!' } };
     } catch (err) {
       console.error('Save error:', err);
@@ -119,17 +112,16 @@ export const actions: Actions = {
 
   search: async ({ request, locals }) => {
     const formData = await request.formData();
-    const data = {
-      searchQuery: formData.get('searchQuery') as string,
-      selectedTags: formData.getAll('selectedTags') as string[],
-    };
+    const parseResult = searchFormSchema.safeParse({
+      searchQuery: formData.get('searchQuery'),
+      selectedTags: formData.getAll('selectedTags'),
+    });
 
-    const validation = validateSearchForm(data);
-    if (!validation.isValid) {
-      return fail(400, {
-        search: {
-          errors: validation.errors,
-          data
+    if (!parseResult.success) {
+      return fail(400, { 
+        search: { 
+          errors: parseResult.error.flatten().fieldErrors,
+          data: Object.fromEntries(formData)
         }
       });
     }
@@ -141,10 +133,10 @@ export const actions: Actions = {
 
     try {
       const search_results = await searchSimilarContent(
-        user,
-        data.searchQuery,
-        5,
-        data.selectedTags
+        user, 
+        parseResult.data.searchQuery, 
+        5, 
+        parseResult.data.selectedTags
       );
       return { search_results, search: { success: true } };
     } catch (err) {
