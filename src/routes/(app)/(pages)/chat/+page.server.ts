@@ -51,7 +51,7 @@ export const actions: Actions = {
   crawl: async ({ request, locals }) => {
     const form = await superValidate(request, zod(crawlFormSchema), { id: 'crawl' });
     if (!form.valid) {
-      return fail(400, { crawlForm: form });
+      return fail(400, form);
     }
 
     const { user } = await locals.safeGetSession();
@@ -71,7 +71,7 @@ export const actions: Actions = {
   text: async ({ request, locals }) => {
     const form = await superValidate(request, zod(textFormSchema), { id: 'text' });
     if (!form.valid) {
-      return fail(400, { textForm: form });
+      return fail(400, form);
     }
 
     const { user } = await locals.safeGetSession();
@@ -91,7 +91,7 @@ export const actions: Actions = {
   search: async ({ request, locals }) => {
     const form = await superValidate(request, zod(searchFormSchema), { id: 'search' });
     if (!form.valid) {
-      return fail(400, { searchForm: form });
+      return fail(400, form);
     }
 
     const { user } = await locals.safeGetSession();
