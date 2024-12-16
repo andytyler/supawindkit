@@ -1,7 +1,9 @@
 import type { Actions, PageServerLoad } from './$types';
 
 
-
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { z } from 'zod';
 // const crawlFormSchema = z.object({
 //   crawl_title: z
 //     .string()
@@ -13,15 +15,15 @@ import type { Actions, PageServerLoad } from './$types';
 //   depth: z.number().min(0).max(3),
 // });
 
-// const textFormSchema = z.object({
-//   textTitle: z
-//     .string()
-//     .min(1, "Title is required")
-//     .refine((value) => !value.includes(" "), {
-//       message: "Title must not contain spaces",
-//     }),
-//   textContent: z.string().min(1, "Content is required"),
-// });
+  const textFormSchema = z.object({
+    textTitle: z
+      .string()
+      .min(1, "Title is required")
+      .refine((value) => !value.includes(" "), {
+        message: "Title must not contain spaces",
+      }),
+    textContent: z.string().min(1, "Content is required"),
+  });
 
 // const searchFormSchema = z.object({
 //   searchQuery: z
@@ -35,9 +37,10 @@ export const load: PageServerLoad = async ({ locals }) => {
     console.log('Page load called');
     // const { session } = await locals.safeGetSession();
     // const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
-    // const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
+    const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
     // const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
     // return { crawlForm, textForm, searchForm, session };
+    return { textForm };
   } catch (error) {
     console.error('Error in page load:', error);
     throw error;
