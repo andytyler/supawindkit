@@ -60,10 +60,10 @@
 
   const navigationLinks = [
     { label: "App", href: "/chat" },
-    { label: "Blog", href: "/blog" },
-    { label: "Search", href: "/" },
+    // { label: "Blog", href: "/blog" },
+    // { label: "Search", href: "/" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Login", href: "/login" },
+    { label: "Account", href: "/account" },
   ]
 </script>
 
@@ -77,7 +77,7 @@
 {/if}
 
 <div class="min-h-screen flex flex-col">
-  <header class="fixed w-full top-0 z-40 backdrop-blur-xl">
+  <header class="fixed w-full top-0 z-[999999] backdrop-blur-xl">
     <div class="container mx-auto">
       <nav class="flex h-16 items-center justify-between">
         <a

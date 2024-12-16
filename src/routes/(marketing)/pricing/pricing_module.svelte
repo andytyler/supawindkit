@@ -1,60 +1,107 @@
 <script lang="ts">
+  import Button from "$components/ui/button/button.svelte"
+  import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+  } from "$components/ui/card"
   import { pricingPlans } from "./pricing_plans"
 
-  // Module context
-  export let highlightedPlanId: string = ""
+  export let highlightedPlanId: string = "pro"
   export let callToAction: string
   export let currentPlanId: string = ""
   export let center = true
 </script>
 
-<div
-  class="flex flex-col lg:flex-row gap-10 {center
-    ? 'place-content-center'
-    : ''} flex-wrap"
->
-  {#each pricingPlans as plan}
-    <div
-      class="flex-none card card-bordered {plan.id === highlightedPlanId
-        ? 'border-primary'
-        : 'border-gray-200'} shadow-xl flex-1 flex-grow min-w-[260px] max-w-[310px] p-6"
-    >
-      <div class="flex flex-col h-full">
-        <div class="text-xl font-bold">{plan.name}</div>
-        <p class="mt-2 text-sm text-gray-500 leading-relaxed">
-          {plan.description}
-        </p>
-        <div class="mt-auto pt-4 text-sm text-gray-600">
-          Plan Includes:
-          <ul class="list-disc list-inside mt-2 space-y-1">
-            {#each plan.features as feature}
-              <li class="">{feature}</li>
-            {/each}
-            <ul></ul>
-          </ul>
-        </div>
-        <div class="pt-8">
-          <span class="text-4xl font-bold">{plan.price}</span>
-          <span class="text-gray-400">{plan.priceIntervalName}</span>
-          <div class="mt-6 pt-4 flex-1 flex flex-row items-center">
-            {#if plan.id === currentPlanId}
-              <div
-                class="btn btn-outline btn-success no-animation w-[80%] mx-auto cursor-default"
-              >
-                Current Plan
-              </div>
-            {:else}
-              <a
-                href={"/account/subscribe/" +
-                  (plan?.stripe_price_id ?? "free_plan")}
-                class="btn btn-primary w-[80%] mx-auto"
-              >
-                {callToAction}
-              </a>
+<div class="w-full px-4 py-8">
+  <div
+    class="mx-auto grid max-w-7xl gap-8 {center ? 'place-content-center' : ''} 
+    grid-cols-1 lg:grid-cols-3"
+  >
+    {#each pricingPlans as plan}
+      <Card
+        class="relative flex h-full flex-col {plan.id === highlightedPlanId
+          ? 'border-primary ring-1 ring-primary'
+          : 'border-border'}"
+      >
+        {#if plan.id === highlightedPlanId}
+          <div
+            class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-8 py-1.5 text-sm font-medium text-primary-foreground"
+          >
+            Popular
+          </div>
+        {/if}
+
+        <CardHeader class="flex flex-col space-y-1.5 pb-8">
+          <CardTitle class="text-2xl font-bold">{plan.name}</CardTitle>
+          <CardDescription class="text-base text-muted-foreground">
+            {plan.description}
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent class="flex flex-col space-y-6">
+          <div class="flex items-baseline">
+            <span class="text-4xl font-bold tracking-tight">
+              {plan.price || "Talk to Sales"}
+            </span>
+            {#if plan.priceIntervalName}
+              <span class="ml-2 text-muted-foreground"> per month </span>
             {/if}
           </div>
-        </div>
-      </div>
-    </div>
-  {/each}
+
+          <div class="space-y-4">
+            <h4 class="text-sm font-medium text-muted-foreground">
+              Plan includes:
+            </h4>
+            <ul class="space-y-3">
+              {#each plan.features as feature}
+                <li class="flex items-center gap-2">
+                  <svg
+                    class="h-5 w-5 text-primary"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M7.75 12.75L10 15.25L16.25 8.75"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span class="text-base">{feature}</span>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        </CardContent>
+
+        <CardFooter class="mt-auto pt-8">
+          {#if plan.id === "enterprise"}
+            <Button variant="secondary" size="lg" class="w-full" href={`/#cal`}>
+              Talk to Sales
+            </Button>
+          {:else}
+            <Button
+              variant={plan.id === currentPlanId ? "secondary" : "default"}
+              size="lg"
+              class="w-full  {plan.id === currentPlanId
+                ? 'bg-muted'
+                : 'bg-primary'}"
+              disabled={plan.id === currentPlanId}
+              href={plan.id === currentPlanId
+                ? undefined
+                : `/account/subscribe/${plan?.stripe_price_id ?? "free_plan"}`}
+            >
+              {plan.id === currentPlanId ? "Current Plan" : callToAction}
+            </Button>
+          {/if}
+        </CardFooter>
+      </Card>
+    {/each}
+  </div>
 </div>

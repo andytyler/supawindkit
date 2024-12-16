@@ -16,18 +16,18 @@
 
   const features = [
     {
-      id: "ai",
-      icon: Bot,
-      title: "AI-Powered Answers",
-      desc: "Get instant, accurate responses from your documentation",
-      gradient: "from-blue-500/20 via-blue-500/10 to-transparent",
-    },
-    {
       id: "search",
       icon: Search,
       title: "Smart Search",
       desc: "Find exactly what you need with semantic search",
       gradient: "from-yellow-500/20 via-yellow-500/10 to-transparent",
+    },
+    {
+      id: "ai",
+      icon: Bot,
+      title: "AI-Powered Answers",
+      desc: "Get instant, accurate responses from your documentation",
+      gradient: "from-blue-500/20 via-blue-500/10 to-transparent",
     },
     {
       id: "content",
@@ -87,7 +87,7 @@
           <!-- New Announcement Pill -->
           <div class="flex justify-center mb-8 sm:mb-16 mt-8">
             <a
-              href="/blog"
+              href="/chat"
               class="group relative flex items-center gap-2 px-4 sm:px-6 py-2.5
                      bg-gradient-to-r from-card via-card to-card
                      hover:from-primary/20 hover:via-primary/10 hover:to-primary/20
@@ -133,7 +133,7 @@
           <p
             class="max-w-2xl mx-auto text-xl sm:text-lg lg:text-xl text-foreground/60 mb-8 sm:mb-12 leading-relaxed px-4"
           >
-            Chat to your knowledgebase to get answers to your questions.
+            Chat to your knowledge base to get answers to your questions.
           </p>
 
           <!-- Enhanced CTAs -->
