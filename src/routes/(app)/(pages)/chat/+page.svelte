@@ -1,6 +1,5 @@
 <script lang="ts">
-  import type { ActionData } from "./$types"
-  // import ParentChat from "./ParentChat.svelte"
+  import ParentChat from "./ParentChat.svelte"
 
   import {
     PaneGroup,
@@ -9,10 +8,10 @@
   } from "$lib/components/ui/resizable"
   import { ScrollArea } from "$lib/components/ui/scroll-area"
   import { Separator } from "$lib/components/ui/separator"
-  import IngestCrawl from "./IngestCrawl.svelte"
+  // import IngestCrawl from "./IngestCrawl.svelte"
 
   // export let data: PageData
-  export let form: ActionData
+  // export let form: ActionData
 
   let selectedContent: { title?: string; content: string } | null = null
 </script>
@@ -26,7 +25,7 @@
     >
       <ScrollArea class="h-[calc(100vh-8rem)]">
         <div class="h-full w-full p-4">
-          <IngestCrawl {form} />
+          <!-- <IngestCrawl {form} /> -->
         </div>
       </ScrollArea>
     </ResizablePane>
@@ -36,7 +35,7 @@
     <ResizablePane defaultSize={2 / 3} minSize={30} class="flex flex-col">
       <Separator />
       <div class="flex-1 overflow-hidden">
-        <!-- <ParentChat /> -->
+        <ParentChat />
       </div>
     </ResizablePane>
   </PaneGroup>
