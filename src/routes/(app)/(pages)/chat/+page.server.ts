@@ -1,10 +1,7 @@
 import { crawlWebsite, saveContent, searchSimilarContent } from '$lib/server/extrapolate/extrapolate-limited-md';
 import { fail, type Actions } from '@sveltejs/kit';
-import { zod } from 'sveltekit-superforms/adapters';
-import { message, setError, superValidate } from 'sveltekit-superforms/server';
 import { z } from 'zod';
 import type { PageServerLoad } from './$types';
-
 
 const crawlFormSchema = z.object({
   crawl_title: z
@@ -37,10 +34,7 @@ const searchFormSchema = z.object({
 export const load: PageServerLoad = async ({ locals }) => {
   try {
     const { session } = await locals.safeGetSession();
-    const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
-    const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
-    const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
-    return { crawlForm, textForm, searchForm, session };
+    return { session };
   } catch (error) {
     console.error('Error in page load:', error);
     throw error;
@@ -48,63 +42,99 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-  crawl: async ({ request, locals }) => {
-    const form = await superValidate(request, zod(crawlFormSchema), { id: 'crawl' });
-    if (!form.valid) {
-      return fail(400, form);
+  crawl: async ({ request, locals, url , cookies}) => {
+    const formData = await request.formData();
+    const parseResult = crawlFormSchema.safeParse({
+      crawl_title: formData.get('crawl_title'),
+      input_url: formData.get('input_url'),
+      depth: Number(formData.get('depth')),
+    });
+
+    if (!parseResult.success) {
+      return fail(400, { 
+        crawl: { 
+          errors: parseResult.error.flatten().fieldErrors,
+          data: Object.fromEntries(formData)
+        }
+      });
     }
 
     const { user } = await locals.safeGetSession();
     if (!user) {
-      return setError(form, '', 'Unauthorized');
+      return fail(401, { crawl: { error: 'Unauthorized' } });
     }
 
     try {
-      await crawlWebsite(user, form.data.input_url, form.data.depth, form.data.crawl_title);
-      return message(form, 'Crawl completed successfully!');
+      await crawlWebsite(user, parseResult.data.input_url, parseResult.data.depth, parseResult.data.crawl_title);
+      return { crawl: { success: 'Crawl completed successfully!' } };
     } catch (err) {
       console.error('Crawl error:', err);
-      return setError(form, '', 'An error occurred while crawling the website.');
+      return fail(500, { crawl: { error: 'An error occurred while crawling the website.' } });
     }
   },
 
   text: async ({ request, locals }) => {
-    const form = await superValidate(request, zod(textFormSchema), { id: 'text' });
-    if (!form.valid) {
-      return fail(400, form);
+    const formData = await request.formData();
+    const parseResult = textFormSchema.safeParse({
+      textTitle: formData.get('textTitle'),
+      textContent: formData.get('textContent'),
+    });
+
+    if (!parseResult.success) {
+      return fail(400, { 
+        text: { 
+          errors: parseResult.error.flatten().fieldErrors,
+          data: Object.fromEntries(formData)
+        }
+      });
     }
 
     const { user } = await locals.safeGetSession();
     if (!user) {
-      return setError(form, '', 'Unauthorized');
+      return fail(401, { text: { error: 'Unauthorized' } });
     }
 
     try {
-      await saveContent('text', form.data.textContent, form.data.textTitle, user.id);
-      return message(form, 'Content saved successfully!');
+      await saveContent('text', parseResult.data.textContent, parseResult.data.textTitle, user.id);
+      return { text: { success: 'Content saved successfully!' } };
     } catch (err) {
       console.error('Save error:', err);
-      return setError(form, '', 'An error occurred while saving the content.');
+      return fail(500, { text: { error: 'An error occurred while saving the content.' } });
     }
   },
 
   search: async ({ request, locals }) => {
-    const form = await superValidate(request, zod(searchFormSchema), { id: 'search' });
-    if (!form.valid) {
-      return fail(400, form);
+    const formData = await request.formData();
+    const parseResult = searchFormSchema.safeParse({
+      searchQuery: formData.get('searchQuery'),
+      selectedTags: formData.getAll('selectedTags'),
+    });
+
+    if (!parseResult.success) {
+      return fail(400, { 
+        search: { 
+          errors: parseResult.error.flatten().fieldErrors,
+          data: Object.fromEntries(formData)
+        }
+      });
     }
 
     const { user } = await locals.safeGetSession();
     if (!user) {
-      return setError(form, '', 'Unauthorized');
+      return fail(401, { search: { error: 'Unauthorized' } });
     }
 
     try {
-      let search_results = await searchSimilarContent(user, form.data.searchQuery, 5, form.data.selectedTags.map(String));
-      return { form, search_results };
+      const search_results = await searchSimilarContent(
+        user, 
+        parseResult.data.searchQuery, 
+        5, 
+        parseResult.data.selectedTags
+      );
+      return { search_results, search: { success: true } };
     } catch (err) {
       console.error('Search error:', err);
-      return setError(form, '', 'An error occurred while searching the content.');
+      return fail(500, { search: { error: 'An error occurred while searching the content.' } });
     }
   }
 };
