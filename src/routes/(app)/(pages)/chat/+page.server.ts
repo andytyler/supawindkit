@@ -1,3 +1,5 @@
+import { saveContent } from '$lib/server/extrapolate/extrapolate-limited-md';
+import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 
@@ -84,34 +86,32 @@ export const actions: Actions = {
 
   text: async ({ request, locals }) => {
     console.log('Text action called');
-    const formData = await request.formData();
-    console.log(formData);
+    const textForm = await superValidate(request, zod(textFormSchema));
+
+    // const formData = await request.formData();
+    // console.log(formData);
+
     // const parseResult = textFormSchema.safeParse({
     //   textTitle: formData.get('textTitle'),
     //   textContent: formData.get('textContent'),
     // });
 
-    // if (!parseResult.success) {
-    //   return fail(400, { 
-    //     text: { 
-    //       errors: parseResult.error.flatten().fieldErrors,
-    //       data: Object.fromEntries(formData)
-    //     }
-    //   });
-    // }
+    if (!textForm.valid) {
+      return fail(400, { textForm });
+    }
 
-    // const { user } = await locals.safeGetSession();
-    // if (!user) {
-    //   return fail(401, { text: { error: 'Unauthorized' } });
-    // }
+    const { user } = await locals.safeGetSession();
+    if (!user) {
+      return fail(401, { textForm });
+    }
 
-    // try {
-    //   await saveContent('text', parseResult.data.textContent, parseResult.data.textTitle, user.id);
-    //   return { text: { success: 'Content saved successfully!' } };
-    // } catch (err) {
-    //   console.error('Save error:', err);
-    //   return fail(500, { text: { error: 'An error occurred while saving the content.' } });
-    // }
+    try {
+      await saveContent('text', textForm.data.textContent, textForm.data.textTitle, user.id);
+      return { textForm };
+    } catch (err) {
+      console.error('Save error:', err);
+      return fail(500, { textForm });
+    }
   },
 
   search: async ({ request, locals }) => {
