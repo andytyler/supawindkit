@@ -6,9 +6,9 @@
   import * as Card from "$lib/components/ui/card"
   import * as Tabs from "$lib/components/ui/tabs"
   import { superForm } from "sveltekit-superforms/client"
-  import type { ActionData, PageData } from "./$types"
+  import type { PageData } from "./$types"
 
-  export let form: ActionData
+  // export let form: ActionData
   export let data: PageData
 
   // const {
@@ -55,7 +55,7 @@
         >
       </Card.Header>
       <Card.Content>
-        <form method="POST" action="?/crawl" class="space-y-4">
+        <!-- <form method="POST" action="?/crawl" class="space-y-4">
           <div class="space-y-2">
             <Label for="crawl_title">Crawl Title (no spaces)</Label>
             <Input
@@ -131,7 +131,7 @@
               {form.crawl.error}
             </div>
           {/if}
-        </form>
+        </form> -->
       </Card.Content>
     </Card.Root>
   </Tabs.Content>
@@ -202,7 +202,7 @@
         <Card.Description>Search through your content</Card.Description>
       </Card.Header>
       <Card.Content>
-        <form method="POST" action="?/search" class="space-y-4">
+        <!-- <form method="POST" action="?/search" class="space-y-4">
           <div class="space-y-2">
             <Label for="searchQuery">Search Query</Label>
             <Input
@@ -225,7 +225,6 @@
             <Label>Tags (Optional)</Label>
             <div class="flex flex-wrap gap-2">
               <input type="hidden" name="selectedTags" value="" />
-              <!-- Add your tags selection UI here -->
             </div>
           </div>
 
@@ -255,7 +254,7 @@
               </div>
             {/each}
           </div>
-        {/if}
+        {/if} -->
       </Card.Content>
     </Card.Root>
   </Tabs.Content>

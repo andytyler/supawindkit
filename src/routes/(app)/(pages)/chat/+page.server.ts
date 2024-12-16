@@ -1,11 +1,10 @@
 import { saveContent } from '$lib/server/extrapolate/extrapolate-limited-md';
 import { fail } from '@sveltejs/kit';
+import { zod } from 'sveltekit-superforms/adapters';
+import { message, superValidate } from 'sveltekit-superforms/server';
+import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 
-
-import { superValidate } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
-import { z } from 'zod';
 
 
 // const crawlFormSchema = z.object({
@@ -107,7 +106,7 @@ export const actions: Actions = {
 
     try {
       await saveContent('text', textForm.data.textContent, textForm.data.textTitle, user.id);
-      return { textForm };
+      return message(textForm, 'Text saved successfully!');
     } catch (err) {
       console.error('Save error:', err);
       return fail(500, { textForm });
