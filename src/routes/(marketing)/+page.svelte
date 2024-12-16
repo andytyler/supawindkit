@@ -65,7 +65,7 @@
   <main class="relative min-h-screen bg-transparent antialiased">
     <div class="relative w-screen">
       <!-- Hide FloatingCards on mobile -->
-      <div class="hidden sm:block">
+      <div class="hidden xl:block">
         <FloatingCards />
       </div>
       <!-- Enhanced gradient background -->

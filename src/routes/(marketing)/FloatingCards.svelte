@@ -93,7 +93,7 @@
   </div>
 </div> -->
 
-<div class="absolute left-32 top-[6rem] animate-float mt-16 z-[9999]">
+<div class="absolute left-16 top-[6rem] animate-float mt-16 z-[9999]">
   <div
     class="group relative overflow-hidden bg-card/80 backdrop-blur-xl rounded-2xl p-4 shadow-lg rotate-[-18deg]
            border border-foreground/10 hover:border-foreground/20 transition-all duration-300
@@ -145,7 +145,7 @@
 </div>
 
 <!-- Analytics Card - Bottom Right -->
-<div class="absolute right-32 top-32 animate-float mt-16 z-[99]">
+<div class="absolute right-16 top-32 animate-float mt-16 z-[99]">
   <div
     class="group relative overflow-hidden bg-card/80 backdrop-blur-xl rounded-2xl p-4 shadow-lg rotate-[6deg]
            border border-foreground/10 hover:border-foreground/20 transition-all duration-300
@@ -184,7 +184,7 @@
 </div>
 
 <!-- Document Processing Card -->
-<div class="absolute left-32 top-[32rem] animate-float mt-16 z-[9999]">
+<div class="absolute left-16 top-[32rem] animate-float mt-16 z-[9999]">
   <div
     class="group relative overflow-hidden bg-card/80 backdrop-blur-xl rounded-2xl p-4 shadow-lg rotate-[4deg]
            border border-foreground/10 hover:border-foreground/20 transition-all duration-300
@@ -234,7 +234,7 @@
 </div>
 
 <!-- Knowledge Graph Card -->
-<div class="absolute right-48 top-[34rem] animate-float mt-16 z-[9999]">
+<div class="absolute right-16 top-[34rem] animate-float mt-16 z-[9999]">
   <div
     class="group relative overflow-hidden bg-card/80 backdrop-blur-xl rounded-2xl p-4 shadow-lg rotate-[-5deg]
            border border-foreground/10 hover:border-foreground/20 transition-all duration-300
