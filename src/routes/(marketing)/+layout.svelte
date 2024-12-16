@@ -26,9 +26,9 @@
       title: "Quick Links",
       links: [
         { label: "Blog Posts", href: "/blog" },
-        { label: "Company", href: "/blog" },
+        // { label: "Company", href: "/blog" },
         { label: "Pricing", href: "/pricing" },
-        { label: "Login", href: "/login" },
+        // { label: "Login", href: "/login" },
         { label: "Account", href: "/account" },
       ],
     },

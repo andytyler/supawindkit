@@ -260,7 +260,7 @@
               How it works
             </h2>
             <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Chat to your knowledgebase to get answers to your questions.
+              Chat to your knowledge base to get answers to your questions.
             </p>
             <InteractionCards />
           </div>
