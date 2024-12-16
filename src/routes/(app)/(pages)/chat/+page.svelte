@@ -209,12 +209,6 @@
                         {$textMessage}
                       </div>
                     {/if}
-
-                    {#if $textErrors}
-                      <div class="mt-4 p-4 bg-red-100 text-red-700 rounded-md">
-                        {JSON.stringify($textErrors, null, 2)}
-                      </div>
-                    {/if}
                   </form>
                 </Card.Content>
               </Card.Root>
@@ -222,13 +216,16 @@
 
             <Tabs.Content value="search">
               <Card.Root>
-                <Card.Header>
+                <!-- <Card.Header>
                   <Card.Title>Search Content</Card.Title>
                   <Card.Description
                     >Search through your content</Card.Description
                   >
-                </Card.Header>
+                </Card.Header> -->
                 <Card.Content>
+                  <div class="flex items-center justify-center p-8">
+                    <p class="text-lg text-muted-foreground">Coming soon...</p>
+                  </div>
                   <!-- <form method="POST" action="?/search" class="space-y-4">
                     <div class="space-y-2">
                       <Label for="searchQuery">Search Query</Label>
