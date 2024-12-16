@@ -5,9 +5,38 @@
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
   import * as Tabs from "$lib/components/ui/tabs"
-  import type { ActionData } from "./$types"
+  import { superForm } from "sveltekit-superforms/client"
+  import type { ActionData, PageData } from "./$types"
 
   export let form: ActionData
+  export let data: PageData
+
+  // const {
+  //   form: crawlForm,
+  //   errors: crawlErrors,
+  //   enhance: crawlEnhance,
+  //   message: crawlMessage,
+  // } = superForm(data.crawlForm, {
+  //   resetForm: true,
+  // })
+
+  const {
+    form: textForm,
+    errors: textErrors,
+    enhance: textEnhance,
+    message: textMessage,
+  } = superForm(data.textForm, {
+    resetForm: true,
+  })
+
+  // const {
+  //   form: searchForm,
+  //   errors: searchErrors,
+  //   enhance: searchEnhance,
+  //   message: searchMessage,
+  // } = superForm(data.searchForm, {
+  //   resetForm: true,
+  // })
 </script>
 
 <Tabs.Root value="crawl" class="w-full">
@@ -114,23 +143,21 @@
         <Card.Description>Add text content directly</Card.Description>
       </Card.Header>
       <Card.Content>
-        <form method="POST" action="?/text" class="space-y-4">
+        <form method="POST" action="?/text" class="space-y-4" use:textEnhance>
           <div class="space-y-2">
             <Label for="textTitle">Text Title (no spaces)</Label>
             <Input
               type="text"
               id="textTitle"
               name="textTitle"
-              value={form?.text?.data?.textTitle ?? ""}
+              bind:value={$textForm.textTitle}
               placeholder="Enter a title..."
               class="w-full"
               pattern="\S+"
               required
             />
-            {#if form?.text?.errors?.textTitle}
-              <span class="text-red-500 text-sm"
-                >{form.text.errors.textTitle}</span
-              >
+            {#if $textErrors?.textTitle}
+              <span class="text-red-500 text-sm">{$textErrors.textTitle}</span>
             {/if}
           </div>
 
@@ -139,29 +166,28 @@
             <Textarea
               id="textContent"
               name="textContent"
-              value={form?.text?.data?.textContent ?? ""}
+              bind:value={$textForm.textContent}
               placeholder="Enter your content..."
               class="w-full min-h-[200px]"
               required
             />
-            {#if form?.text?.errors?.textContent}
-              <span class="text-red-500 text-sm"
-                >{form.text.errors.textContent}</span
+            {#if $textErrors?.textContent}
+              <span class="text-red-500 text-sm">{$textErrors.textContent}</span
               >
             {/if}
           </div>
 
           <Button type="submit" class="w-full">Save Content</Button>
 
-          {#if form?.text?.success}
+          {#if $textMessage}
             <div class="mt-4 p-4 bg-green-100 text-green-700 rounded-md">
-              {form.text.success}
+              {$textMessage}
             </div>
           {/if}
 
-          {#if form?.text?.error}
+          {#if $textErrors}
             <div class="mt-4 p-4 bg-red-100 text-red-700 rounded-md">
-              {form.text.error}
+              {JSON.stringify($textErrors, null, 2)}
             </div>
           {/if}
         </form>

@@ -4,6 +4,8 @@ import type { Actions, PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
+
+
 // const crawlFormSchema = z.object({
 //   crawl_title: z
 //     .string()
@@ -37,7 +39,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     console.log('Page load called');
     // const { session } = await locals.safeGetSession();
     // const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
-    const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
+    const textForm = await superValidate(zod(textFormSchema));
     // const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
     // return { crawlForm, textForm, searchForm, session };
     return { textForm };
@@ -82,7 +84,8 @@ export const actions: Actions = {
 
   text: async ({ request, locals }) => {
     console.log('Text action called');
-    // const formData = await request.formData();
+    const formData = await request.formData();
+    console.log(formData);
     // const parseResult = textFormSchema.safeParse({
     //   textTitle: formData.get('textTitle'),
     //   textContent: formData.get('textContent'),

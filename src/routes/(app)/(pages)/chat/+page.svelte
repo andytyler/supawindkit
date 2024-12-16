@@ -8,10 +8,10 @@
   } from "$lib/components/ui/resizable"
   import { ScrollArea } from "$lib/components/ui/scroll-area"
   import { Separator } from "$lib/components/ui/separator"
-  import IngestCrawl from "./IngestCrawl.svelte"
   import type { ActionData } from "./$types"
+  import IngestCrawl from "./IngestCrawl.svelte"
 
-  // export let data: PageData
+  export let data: PageData
   export let form: ActionData
 
   let selectedContent: { title?: string; content: string } | null = null
@@ -26,7 +26,7 @@
     >
       <ScrollArea class="h-[calc(100vh-8rem)]">
         <div class="h-full w-full p-4">
-          <IngestCrawl {form} />
+          <IngestCrawl {form} {data} />
         </div>
       </ScrollArea>
     </ResizablePane>
