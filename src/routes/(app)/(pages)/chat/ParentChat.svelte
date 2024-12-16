@@ -61,7 +61,11 @@
       const decoder = new TextDecoder()
 
       if (reader && decoder) {
-        let assistantMessage = { role: "assistant", content: "", snippets: [] }
+        let assistantMessage: {
+          role: "user" | "assistant"
+          content: string
+          snippets?: any[]
+        } = { role: "assistant", content: "", snippets: [] }
         messages = [...messages, assistantMessage]
 
         let streamComplete = false

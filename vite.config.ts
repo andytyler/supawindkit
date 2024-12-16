@@ -16,6 +16,22 @@ export default defineConfig({
     //   },
     // },
   ],
+  optimizeDeps: {
+    include: [
+      '@tiptap/core',
+      '@tiptap/starter-kit',
+      '@tiptap/extension-mention',
+      '@tiptap/extension-placeholder'
+    ]
+  },
+  ssr: {
+    noExternal: [
+      '@tiptap/core',
+      '@tiptap/starter-kit',
+      '@tiptap/extension-mention',
+      '@tiptap/extension-placeholder'
+    ]
+  },
   test: {
     include: ["src/**/*.{test,spec}.{js,ts}"],
     globals: true, /// allows to skip import of test functions like `describe`, `it`, `expect`, etc.
