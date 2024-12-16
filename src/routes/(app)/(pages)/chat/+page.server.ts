@@ -104,7 +104,20 @@ export const actions: Actions = {
     }
 
     try {
-      // await saveContent('text', textForm.data.textContent, textForm.data.textTitle, user.id);
+      const response = await fetch('/api/add-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          content: textForm.data.textContent,
+          title: textForm.data.textTitle
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save content');
+      }
       console.log('FAKING THE TEXT SAVE');
       return message(textForm, 'Text saved successfully!');
     } catch (err) {
