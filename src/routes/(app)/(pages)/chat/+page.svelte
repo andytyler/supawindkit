@@ -21,14 +21,14 @@
   export let data: PageData
   let selectedContent: { title?: string; content: string } | null = null
 
-  // const {
-  //   form: crawlForm,
-  //   errors: crawlErrors,
-  //   enhance: crawlEnhance,
-  //   message: crawlMessage,
-  // } = superForm(data.crawlForm, {
-  //   resetForm: true,
-  // })
+  const {
+    form: crawlForm,
+    errors: crawlErrors,
+    enhance: crawlEnhance,
+    message: crawlMessage,
+  } = superForm(data.crawlForm, {
+    resetForm: true,
+  })
 
   const {
     form: textForm,
@@ -74,44 +74,49 @@
                   >
                 </Card.Header>
                 <Card.Content>
-                  <!-- <form method="POST" action="?/crawl" class="space-y-4">
+                  <form
+                    method="POST"
+                    action="?/crawl"
+                    class="space-y-4"
+                    use:crawlEnhance
+                  >
                     <div class="space-y-2">
                       <Label for="crawl_title">Crawl Title (no spaces)</Label>
                       <Input
                         type="text"
                         id="crawl_title"
                         name="crawl_title"
-                        value={form?.crawl?.data?.crawl_title ?? ""}
+                        bind:value={$crawlForm.crawl_title}
                         placeholder="Enter a title for your website..."
                         class="w-full"
                         pattern="\S+"
                         required
                       />
-                      {#if form?.crawl?.errors?.crawl_title}
-                        <p class="text-sm text-red-500" role="alert">
-                          {form.crawl.errors.crawl_title}
-                        </p>
+                      {#if $crawlErrors?.crawl_title}
+                        <span class="text-red-500 text-sm" role="alert">
+                          {$crawlErrors.crawl_title}
+                        </span>
                       {/if}
                     </div>
-          
+
                     <div class="space-y-2">
                       <Label for="input_url">URL to crawl</Label>
                       <Input
                         type="url"
                         id="input_url"
                         name="input_url"
-                        value={form?.crawl?.data?.input_url ?? ""}
+                        bind:value={$crawlForm.input_url}
                         placeholder="https://example.com"
                         class="w-full"
                         required
                       />
-                      {#if form?.crawl?.errors?.input_url}
-                        <p class="text-sm text-red-500" role="alert">
-                          {form.crawl.errors.input_url}
-                        </p>
+                      {#if $crawlErrors?.input_url}
+                        <span class="text-red-500 text-sm" role="alert">
+                          {$crawlErrors.input_url}
+                        </span>
                       {/if}
                     </div>
-          
+
                     <div class="space-y-2">
                       <Label for="depth">Crawl Depth (0-3)</Label>
                       <Input
@@ -120,37 +125,28 @@
                         name="depth"
                         min="0"
                         max="3"
-                        value={form?.crawl?.data?.depth ?? "1"}
+                        bind:value={$crawlForm.depth}
                         class="w-full"
                         required
                       />
-                      {#if form?.crawl?.errors?.depth}
-                        <p class="text-sm text-red-500" role="alert">
-                          {form.crawl.errors.depth}
-                        </p>
+                      {#if $crawlErrors?.depth}
+                        <span class="text-red-500 text-sm" role="alert">
+                          {$crawlErrors.depth}
+                        </span>
                       {/if}
                     </div>
-          
+
                     <Button type="submit" class="w-full">Start Crawl</Button>
-          
-                    {#if form?.crawl?.success}
+
+                    {#if $crawlMessage}
                       <div
                         class="mt-4 p-4 bg-green-100 text-green-700 rounded-md"
                         role="alert"
                       >
-                        {form.crawl.success}
+                        {$crawlMessage}
                       </div>
                     {/if}
-          
-                    {#if form?.crawl?.error}
-                      <div
-                        class="mt-4 p-4 bg-red-100 text-red-700 rounded-md"
-                        role="alert"
-                      >
-                        {form.crawl.error}
-                      </div>
-                    {/if}
-                  </form> -->
+                  </form>
                 </Card.Content>
               </Card.Root>
             </Tabs.Content>

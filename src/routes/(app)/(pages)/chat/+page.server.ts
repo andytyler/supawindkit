@@ -6,16 +6,16 @@ import type { Actions, PageServerLoad } from './$types';
 
 
 
-// const crawlFormSchema = z.object({
-//   crawl_title: z
-//     .string()
-//     .min(1, "Title is required")
-//     .refine((value) => !value.includes(" "), {
-//       message: "Title must not contain spaces",
-//     }),
-//   input_url: z.string().url("Please enter a valid URL"),
-//   depth: z.number().min(0).max(3),
-// });
+const crawlFormSchema = z.object({
+  crawl_title: z
+    .string()
+    .min(1, "Title is required")
+    .refine((value) => !value.includes(" "), {
+      message: "Title must not contain spaces",
+    }),
+  input_url: z.string().url("Please enter a valid URL"),
+  depth: z.number().min(0).max(3),
+});
 
   const textFormSchema = z.object({
     textTitle: z
@@ -38,11 +38,11 @@ export const load: PageServerLoad = async ({ locals }) => {
   try {
     console.log('Page load called');
     // const { session } = await locals.safeGetSession();
-    // const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
+    const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
     const textForm = await superValidate(zod(textFormSchema));
     // const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
     // return { crawlForm, textForm, searchForm, session };
-    return { textForm };
+    return { crawlForm, textForm };
   } catch (error) {
     console.error('Error in page load:', error);
     throw error;
@@ -52,34 +52,38 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
   crawl: async ({ request, locals }) => {
     console.log('Crawl action called');
-    // const formData = await request.formData();
-    // const parseResult = crawlFormSchema.safeParse({
-    //   crawl_title: formData.get('crawl_title'),
-    //   input_url: formData.get('input_url'),
-    //   depth: Number(formData.get('depth')),
-    // });
+    const crawlForm = await superValidate(request, zod(crawlFormSchema));
 
-    // if (!parseResult.success) {
-    //   return fail(400, { 
-    //     crawl: { 
-    //       errors: parseResult.error.flatten().fieldErrors,
-    //       data: Object.fromEntries(formData)
-    //     }
-    //   });
-    // }
+    if (!crawlForm.valid) {
+      return fail(400, { crawlForm });
+    }
 
-    // const { user } = await locals.safeGetSession();
-    // if (!user) {
-    //   return fail(401, { crawl: { error: 'Unauthorized' } });
-    // }
+    const { user } = await locals.safeGetSession();
+    if (!user) {
+      return fail(401, { crawlForm });
+    }
 
-    // try {
-    //   await crawlWebsite(user, parseResult.data.input_url, parseResult.data.depth, parseResult.data.crawl_title);
-    //   return { crawl: { success: 'Crawl completed successfully!' } };
-    // } catch (err) {
-    //   console.error('Crawl error:', err);
-    //   return fail(500, { crawl: { error: 'An error occurred while crawling the website.' } });
-    // }
+    try {
+      const response = await fetch('/api/crawl', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          url: crawlForm.data.input_url,
+          title: crawlForm.data.crawl_title
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to crawl website');
+      }
+
+      return message(crawlForm, 'Website crawled successfully!');
+    } catch (err) {
+      console.error('Crawl error:', err);
+      return fail(500, { crawlForm });
+    }
   },
 
   text: async ({ request, locals }) => {
