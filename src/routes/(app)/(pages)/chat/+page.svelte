@@ -14,7 +14,7 @@
   import { ScrollArea } from "$lib/components/ui/scroll-area"
   import { Separator } from "$lib/components/ui/separator"
   import * as Tabs from "$lib/components/ui/tabs"
-  import { superForm } from "sveltekit-superforms/client"
+  import { superForm } from "sveltekit-superforms"
   import type { PageData } from "./$types"
 
   // export let form: ActionData

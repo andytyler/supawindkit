@@ -1,7 +1,7 @@
 import { saveContent } from '$lib/server/extrapolate/extrapolate-limited-md';
 import { fail } from '@sveltejs/kit';
+import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { message, superValidate } from 'sveltekit-superforms/server';
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 
