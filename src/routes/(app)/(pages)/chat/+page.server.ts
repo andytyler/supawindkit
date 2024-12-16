@@ -1,7 +1,5 @@
 import { crawlWebsite, saveContent, searchSimilarContent } from '$lib/server/extrapolate/extrapolate-limited-md';
 import { fail } from '@sveltejs/kit';
-import { zod } from 'sveltekit-superforms/adapters';
-import { superValidate } from 'sveltekit-superforms/server';
 
 import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
@@ -38,10 +36,10 @@ const searchFormSchema = z.object({
 export const load: PageServerLoad = async ({ locals }) => {
   try {
     const { session } = await locals.safeGetSession();
-    const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
-    const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
-    const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
-    return { crawlForm, textForm, searchForm, session };
+    // const crawlForm = await superValidate(zod(crawlFormSchema), { id: 'crawl' } );
+    // const textForm = await superValidate(zod(textFormSchema), { id: 'text' });
+    // const searchForm = await superValidate(zod(searchFormSchema), { id: 'search' });
+    // return { crawlForm, textForm, searchForm, session };
   } catch (error) {
     console.error('Error in page load:', error);
     throw error;
