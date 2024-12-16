@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { ActionData } from "./$types"
-  import IngestCrawl from "./IngestCrawl.svelte"
   import ParentChat from "./ParentChat.svelte"
 
   import {
@@ -26,7 +25,7 @@
     >
       <ScrollArea class="h-[calc(100vh-8rem)]">
         <div class="h-full w-full p-4">
-          <IngestCrawl {form} />
+          <!-- <IngestCrawl {form} /> -->
         </div>
       </ScrollArea>
     </ResizablePane>
