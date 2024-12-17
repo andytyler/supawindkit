@@ -3,7 +3,6 @@ import { FeatureExtractionPipeline, pipeline } from '@xenova/transformers';
 import * as cheerio from "cheerio";
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import TurndownService from "turndown";
-import { URL } from "url";
 import getHtml from "waterfall-fetch";
 import supabase from "../../supabase";
 
@@ -238,9 +237,6 @@ export async function searchSimilarContent(user: User, query: string, limit: num
     return [];
   }
 }
-
-
-
 
 // Usage
 // crawlWebsite("https://youtube.com", 2) // Crawl up to depth 2

@@ -123,7 +123,7 @@ export const actions: Actions = {
       if (!response.ok) {
         throw new Error('Failed to save content');
       }
-      console.log('FAKING THE TEXT SAVE');
+      // console.log('FAKING THE TEXT SAVE');
       return message(textForm, 'Text saved successfully!');
     } catch (err) {
       console.error('Save error:', err);
