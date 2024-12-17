@@ -21,7 +21,16 @@ export default defineConfig({
       '@tiptap/core',
       '@tiptap/starter-kit',
       '@tiptap/extension-mention',
-      '@tiptap/extension-placeholder'
+      '@tiptap/extension-placeholder',
+      'turndown',
+      'cheerio',
+      '@xenova/transformers',
+      'node-fetch',
+      'axios',
+      'puppeteer',
+      'waterfall-fetch',
+      'zod',
+      'zod-to-json-schema'
     ]
   },
   ssr: {
@@ -29,7 +38,9 @@ export default defineConfig({
       '@tiptap/core',
       '@tiptap/starter-kit',
       '@tiptap/extension-mention',
-      '@tiptap/extension-placeholder'
+      '@tiptap/extension-placeholder',
+      'zod',
+      'zod-to-json-schema'
     ]
   },
   test: {
