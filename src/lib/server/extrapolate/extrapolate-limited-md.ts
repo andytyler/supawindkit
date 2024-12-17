@@ -1,29 +1,57 @@
+import getHtml from "$lib/utils/fetch-wrapper";
 import type { User } from '@supabase/supabase-js';
-import { FeatureExtractionPipeline, pipeline } from '@xenova/transformers';
 import * as cheerio from "cheerio";
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import TurndownService from "turndown";
-import getHtml from "waterfall-fetch";
+import { NodeHtmlMarkdown } from 'node-html-markdown';
 import supabase from "../../supabase";
 
-const turndownService = new TurndownService()
+const nhm = new NodeHtmlMarkdown()
 
 // Use the Xenova model port
-const MODEL_NAME = 'Supabase/gte-small';
-let embeddingPipeline: FeatureExtractionPipeline;
+// const MODEL_NAME = 'Supabase/gte-small';
+// let embeddingPipeline: FeatureExtractionPipeline;
 
-async function loadModel() {
-  embeddingPipeline = await pipeline('feature-extraction', MODEL_NAME);
-  console.log('Embedding Model loaded');
-}
+// async function loadModel() {
+//   embeddingPipeline = await pipeline('feature-extraction', MODEL_NAME, {
+//     quantized: false,
+//     revision: 'main',
+//     progress_callback: (progress: any) => {
+//       console.log(`Loading model: ${Math.round(progress.progress * 100)}%`);
+//     },
+//     env: 'browser',
+//     wasmPath: 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.15.1/dist/',
+//     config: {
+//       runtime: 'web'
+//     }
+//   });
+//   console.log('Embedding Model loaded');
+// }
 
 async function getEmbedding(text: string): Promise<number[]> {
-  if (!embeddingPipeline) await loadModel();
-  const result = await embeddingPipeline(text, {
-    pooling: 'mean',
-    normalize: true,
-  });
-  return Array.from(result.data);
+  try {
+    console.log("Getting embedding for text: ", text);
+
+    const response = await fetch(`${process.env.PUBLIC_SUPABASE_URL}/functions/v1/generate-embedding`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.PUBLIC_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ text })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Generated embedding:', data);
+
+    return data.embedding;
+  } catch (error) {
+    console.error('Error generating embedding:', error);
+    throw error;
+  }
 }
 
 
@@ -40,7 +68,6 @@ export async function crawlWebsite(
     throw new Error('User not authenticated');
   }
 
-  await loadModel(); // Load the model before crawling
   const visitedUrls = new Set<string>()
   const urlsToVisit: { url: string; depth: number }[] = [
     { url: baseUrl, depth: 0 },
@@ -55,7 +82,7 @@ export async function crawlWebsite(
 
     try {
       console.log("--- ----------------------------------- ---")
-      console.log(`🕸️  Crawling: ${currentUrl} (Depth: ${currentDepth})`)
+      console.log(`🕸��  Crawling: ${currentUrl} (Depth: ${currentDepth})`)
       const page_response = await getHtml(currentUrl)
       if (
         !page_response ||
@@ -70,8 +97,6 @@ export async function crawlWebsite(
       // console.log(page_response.html)
       const $ = cheerio.load(page_response.html)
 
-      // Convert HTML to Markdown and save the content
-      let markdown = turndownService.turndown($.html())
       // Remove everything but the core content of the site
       const $body = $('body');
       // console.log("--- markdown POST ---")
@@ -93,7 +118,7 @@ export async function crawlWebsite(
       if ($mainContent.length > 0) {
         // If a main content area is found, use only that
         const cleanedHtml = $mainContent.html() || '';
-        cleanedMarkdown = turndownService.turndown(cleanedHtml);
+        cleanedMarkdown = nhm.translate(cleanedHtml);
       } else {
         // If no main content area is found, use the cleaned body
         const cleanedHtml = $body.html() 
@@ -102,10 +127,10 @@ export async function crawlWebsite(
           continue
         }
         try { 
-          cleanedMarkdown = turndownService.turndown(cleanedHtml);
+          cleanedMarkdown = nhm.translate(cleanedHtml);
         } catch (error) {
-          console.log("🚨  Error turndowning body content")
-          throw new Error("Error turndowning body content")
+          console.log("🚨  Error converting HTML to markdown")
+          throw new Error("Error converting HTML to markdown")
         }
       }
       
@@ -117,7 +142,7 @@ export async function crawlWebsite(
       
       
       // Update the markdown variable with the cleaned content
-      markdown = cleanedMarkdown;
+      let markdown = cleanedMarkdown;
 
       const title:string=crawlTitle||$('title').text()||currentUrl.split("/").pop()||"Untitled"
       
@@ -192,7 +217,7 @@ export async function saveContent(url: string, content: string, title: string, u
       if (error) {
         console.error(`Error inserting chunk ${i} for ${url}:`, error.message);
       } else {
-        console.log(`💾  Saved chunk [${i}] for ${url}`);
+        console.log(`���  Saved chunk [${i}] for ${url}`);
       }
     }
 

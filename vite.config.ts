@@ -4,17 +4,6 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [
     sveltekit(),
-    // {
-    //   name: "vite-build-search-index",
-    //   writeBundle: {
-    //     order: "post",
-    //     sequential: false,
-    //     handler: async () => {
-    //       console.log("Building search index...")
-    //       await buildAndCacheSearchIndex()
-    //     },
-    //   },
-    // },
   ],
   optimizeDeps: {
     include: [
@@ -22,7 +11,6 @@ export default defineConfig({
       '@tiptap/starter-kit',
       '@tiptap/extension-mention',
       '@tiptap/extension-placeholder',
-      'turndown',
       'cheerio',
       '@xenova/transformers',
       'node-fetch',
@@ -40,7 +28,10 @@ export default defineConfig({
       '@tiptap/extension-mention',
       '@tiptap/extension-placeholder',
       'zod',
-      'zod-to-json-schema'
+      'zod-to-json-schema',
+      '@xenova/transformers',
+      'cheerio',
+      'waterfall-fetch'
     ]
   },
   test: {
@@ -48,10 +39,13 @@ export default defineConfig({
     globals: true, /// allows to skip import of test functions like `describe`, `it`, `expect`, etc.
   },
   build: {
+    target: 'esnext',
     rollupOptions: {
-      onwarn(warning, warn) {
-        if (warning.code === 'MIXED_EXPORTS') return;
-        warn(warning);
+      external: [
+        /^node:/  // Mark node built-ins as external
+      ],
+      output: {
+        format: 'esm'
       }
     }
   }

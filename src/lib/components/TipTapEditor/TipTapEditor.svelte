@@ -4,9 +4,9 @@
   import { selectedTagIds } from "$lib/stores/tags"
   import { Editor } from "@tiptap/core"
   import { ChevronRight, Tag, X } from "lucide-svelte"
+  import { NodeHtmlMarkdown } from "node-html-markdown"
   import { onDestroy, onMount } from "svelte"
   import type { Unsubscriber } from "svelte/store"
-  import TurndownService from "turndown"
   import MentionPopup from "./MentionPopup.svelte"
 
   // Props passed from parent component
@@ -25,7 +25,7 @@
   let exampleOutput = ""
   let previousSelectedTagIds: number[] = []
   let unsubscribeStore: Unsubscriber
-  const turndownService = new TurndownService()
+  const nhm = new NodeHtmlMarkdown()
 
   onMount(async () => {
     if (browser) {
@@ -195,7 +195,7 @@
     if (!editor) return
 
     loading = true
-    const markdownContent = turndownService.turndown(userInput)
+    const markdownContent = nhm.translate(userInput)
 
     await onSendMessage(markdownContent, exampleOutput, $selectedTagIds)
 
