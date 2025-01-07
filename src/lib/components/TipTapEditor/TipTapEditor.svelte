@@ -3,8 +3,9 @@
   import { Button } from "$components/ui/button"
   import { selectedTagIds } from "$lib/stores/tags"
   import { Editor } from "@tiptap/core"
+  import DOMPurify from "dompurify"
   import { ChevronRight, Tag, X } from "lucide-svelte"
-  import { NodeHtmlMarkdown } from "node-html-markdown"
+  import { marked } from "marked"
   import { onDestroy, onMount } from "svelte"
   import type { Unsubscriber } from "svelte/store"
   import MentionPopup from "./MentionPopup.svelte"
@@ -25,7 +26,6 @@
   let exampleOutput = ""
   let previousSelectedTagIds: number[] = []
   let unsubscribeStore: Unsubscriber
-  const nhm = new NodeHtmlMarkdown()
 
   onMount(async () => {
     if (browser) {
@@ -191,11 +191,18 @@
     )
   }
 
+  async function htmlToMarkdown(html: string): Promise<string> {
+    // Sanitize the HTML first
+    const cleanHtml = DOMPurify.sanitize(html)
+    // Convert to markdown
+    return await marked.parse(cleanHtml)
+  }
+
   async function sendChatRequest() {
     if (!editor) return
 
     loading = true
-    const markdownContent = nhm.translate(userInput)
+    const markdownContent = await htmlToMarkdown(userInput)
 
     await onSendMessage(markdownContent, exampleOutput, $selectedTagIds)
 

@@ -6,7 +6,7 @@
 //  <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
 
 console.log("Hello from Functions!")
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from 'npm:@supabase/supabase-js'
 
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!)
 

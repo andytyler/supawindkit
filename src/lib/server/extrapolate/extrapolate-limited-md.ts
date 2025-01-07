@@ -1,3 +1,4 @@
+import { PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import getHtml from "$lib/utils/fetch-wrapper";
 import type { User } from '@supabase/supabase-js';
 import * as cheerio from "cheerio";
@@ -27,17 +28,17 @@ const nhm = new NodeHtmlMarkdown()
 //   console.log('Embedding Model loaded');
 // }
 
-async function getEmbedding(text: string): Promise<number[]> {
+async function getEmbedding(search: string): Promise<number[]> {
   try {
-    console.log("Getting embedding for text: ", text);
+    console.log("Getting embedding for text: ", search);
 
-    const response = await fetch(`${process.env.PUBLIC_SUPABASE_URL}/functions/v1/generate-embedding`, {
+    const response = await fetch('https://ayhnablqxweiozejicwg.supabase.co/functions/v1/generate-embedding', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PUBLIC_SUPABASE_ANON_KEY}`
+        'Authorization': `Bearer ${PUBLIC_SUPABASE_ANON_KEY}`
       },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ search })
     });
 
     if (!response.ok) {
@@ -231,6 +232,7 @@ export async function searchSimilarContent(user: User, query: string, limit: num
   try {
     // Generate embedding for the query
     const queryEmbedding = await getEmbedding(query);
+    console.log("SEARCH Query embedding: ", queryEmbedding);
 
     if (!user) {
       throw new Error("User not logged in");

@@ -7,31 +7,31 @@ export default defineConfig({
   ],
   optimizeDeps: {
     include: [
-      '@tiptap/core',
-      '@tiptap/starter-kit',
-      '@tiptap/extension-mention',
-      '@tiptap/extension-placeholder',
-      'cheerio',
-      '@xenova/transformers',
-      'node-fetch',
-      'axios',
-      'puppeteer',
-      'waterfall-fetch',
-      'zod',
-      'zod-to-json-schema'
+      // '@tiptap/core',
+      // '@tiptap/starter-kit',
+      // '@tiptap/extension-mention',
+      // '@tiptap/extension-placeholder',
+      // 'cheerio',
+      // '@xenova/transformers',
+      // 'node-fetch',
+      // 'axios',
+      // 'puppeteer',
+      // 'waterfall-fetch',
+      // 'zod',
+      // 'zod-to-json-schema'
     ]
   },
   ssr: {
     noExternal: [
-      '@tiptap/core',
-      '@tiptap/starter-kit',
-      '@tiptap/extension-mention',
-      '@tiptap/extension-placeholder',
-      'zod',
-      'zod-to-json-schema',
-      '@xenova/transformers',
-      'cheerio',
-      'waterfall-fetch'
+      // '@tiptap/core',
+      // '@tiptap/starter-kit',
+      // '@tiptap/extension-mention',
+      // '@tiptap/extension-placeholder',
+      // 'zod',
+      // 'zod-to-json-schema',
+      // '@xenova/transformers',
+      // 'cheerio',
+      // 'waterfall-fetch'
     ]
   },
   test: {
