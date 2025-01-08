@@ -1,25 +1,4 @@
-<p align="center">
-    <picture>
-        <img width="420" alt="SaaS Starter Header reading: The open source, fast, and free to host SaaS template" src="https://github.com/CriticalMoments/CMSaasStarter/assets/848343/12f47617-e5be-4694-affc-23310e54b885">
-    </picture>
-</p>
-
-<p align="center">
-  <a href="https://github.com/CriticalMoments/CMSaasStarter/actions/workflows/build.yml" target="_blank"><img src="https://github.com/CriticalMoments/CMSaasStarter/actions/workflows/build.yml/badge.svg?branch=main" alt="Built Status"></a>
-  <a href="https://github.com/CriticalMoments/CMSaasStarter/actions/workflows/format.yml" target="_blank"><img src="https://github.com/CriticalMoments/CMSaasStarter/actions/workflows/format.yml/badge.svg?branch=main" alt="Format Check"></a>
-  <a href="https://github.com/CriticalMoments/CMSaasStarter/actions/workflows/linting.yml" target="_blank"><img src="https://github.com/CriticalMoments/CMSaasStarter/actions/workflows/linting.yml/badge.svg?branch=main" alt="Linting"></a>
-  <a href="https://github.com/CriticalMoments/CMSaasStarter/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/License-MIT-brightgreen?labelColor=32383f" alt="License"></a>
-</p>
-
-<p align="center">
-  <a href="https://saasstarter.work"><strong>Demo & Homepage</strong></a> •
-  <a href="https://github.com/CriticalMoments/CMSaasStarter#quick-start"><strong>Quick Start Guide</strong></a> • 
-  <a href="https://github.com/CriticalMoments/CMSaasStarter/issues"><strong>Issues</strong></a>
-</p>
-
-<br/>
-
-# SaaS Starter: A SvelteKit Boilerplate/Template
+# SvelteKit Tailwind Supabase Template Repo
 
 - [Feature Rich](#features): user auth, user dashboard, marketing site, blog engine, billing/subscriptions, pricing page, search, emails, and more.
 - [Lightning Performance](#performance--best-practices): fast pre-rendered pages which score 100/100 on Google PageSpeed.
@@ -32,8 +11,6 @@
 
 Created by the folks at [Critical Moments](https://criticalmoments.io)! Check out our website site for an example deployment of SaaS Starter.
 
-**Make mobile apps?** Improve conversion rates and ratings with [Critical Moments](https://criticalmoments.io).
-
 ## Demo
 
 You can explore all the features using our fully functional demo [saasstarter.work](https://saasstarter.work).
@@ -41,20 +18,6 @@ You can explore all the features using our fully functional demo [saasstarter.wo
 [![Try it Now](https://img.shields.io/badge/Try_it_Now-37a779?style=for-the-badge "Try it Now")](https://saasstarter.work)
 
 See [criticalmoments.io](https://criticalmoments.io) for an example of what’s possible after this template has design, content, and functionality added.
-
-<a href="https://saasstarter.work">
-<kbd>
-<img width="500" alt="homepage" src="https://github.com/CriticalMoments/CMSaasStarter/assets/848343/34944c09-df72-4ac2-9099-01d25d99911b">
-</kbd>
-<br>
-<kbd>
-<img width="200" alt="pricing page" src="https://github.com/CriticalMoments/CMSaasStarter/assets/848343/c3cb2ab7-3739-473e-a1fe-f82a4a31e844">
-</kbd><kbd>
-<img width="200" alt="settings page" src="https://github.com/CriticalMoments/CMSaasStarter/assets/848343/2d947c97-3cc7-4ff5-a5b1-7c8478b6f31a">
-</kbd><kbd>
-<img width="200" alt="payments portal" src="https://github.com/CriticalMoments/CMSaasStarter/assets/848343/0c4749c3-0d29-4edc-ae87-d8a4eefea3c9">
-</kbd>
-</a>
 
 ## Features
 
@@ -84,10 +47,10 @@ What to learn why we picked the technologies we did, and how to keep your fork l
 - Web Framework: SvelteKit
 - CSS / Styling
   - Framework: TailwindCSS
-  - Component library: DaisyUI
+  - Component library: SvelteShadcn
 - Suggested Hosting Stack
-  - Host + CDN: Cloudflare Pages
-  - Serverless compute: Cloudflare Workers
+  - DNS: Cloudflare
+  - Hosting: Railway.app
   - Authentication: Supabase Auth
   - Database: Supabase Postgres
 - Payments
@@ -132,9 +95,7 @@ The selected tech stack creates lightning fast websites.
 
 The result is a perfect Google PageSpeed Insights score in all categories!
 
-<img width="420" alt="Screenshot 2024-01-18 at 11 31 32 AM" src="https://github.com/CriticalMoments/CMSaasStarter/assets/848343/46b5e960-2aa0-4fb5-acd7-4f84b380e1d0">
-
-# Quick Start
+## Quick Start
 
 ## Create a Copy of the Template
 
@@ -147,7 +108,7 @@ To get started, create your own copy of the project for development. There are t
 
 On your development machine:
 
-```
+```zsh
 git pull [Your Repo Created Above]
 cd CMSaasStarter ## or your repo name if different
 npm install
@@ -163,15 +124,15 @@ npm run dev -- --open
 
 The repo includes [CI scripts](https://aws.amazon.com/devops/continuous-integration/) designed for [GitHub Actions](https://github.com/features/actions). These confirm you don’t break your [build](https://github.com/CriticalMoments/CMSaasStarter/blob/main/.github/workflows/build.yml), you use [proper code formatting](https://github.com/CriticalMoments/CMSaasStarter/blob/main/.github/workflows/format.yml), [code linting and typechecking passes](https://github.com/CriticalMoments/CMSaasStarter/blob/main/.github/workflows/linting.yml), and even spell checking.
 
-### Enabling GitHub Actions
+### GitHub Actions
 
-Github disables CI on new forks by default, so be sure to go into the Github Actions page for your repo and enable workflows.
+There is no need to set up GitHub Actions, as we use Railway.app for CI/CD.
 
 ### Running Developer Tools Locally
 
 To manually run all these tools run the following script. You can view it's contents for individual commands.
 
-```
+```zsh
 # first time only: chmod +x ./check.sh
 ./check.sh
 ```
@@ -188,7 +149,7 @@ Installing extensions in your editor can automatically format-on-save, show lint
 
 To catch build, formatting, linting and test issues before you commit changes, we suggest the following local git hook. It will run before you commit, stop you from breaking the build, and show any issues that are found. Add the lines below to an executable git hook script at the location `.git/hooks/pre-commit`.
 
-```
+``` zsh
 #!/bin/sh
 # Run standard checks before committing
 cd "$(dirname "$0")"
@@ -215,11 +176,13 @@ If you find build, formatting or linting rules too tedious, you can disable enfo
 - Enable user signups in the [Supabase console](https://app.supabase.com/project/_/settings/auth): sometimes new signups are disabled by default in Supabase projects
 - Go to the [API Settings](https://supabase.com/dashboard/project/_/settings/api) page in the Dashboard. Find your Project-URL (PUBLIC_SUPABASE_URL), anon (PUBLIC_SUPABASE_ANON_KEY) and service_role (PRIVATE_SUPABASE_SERVICE_ROLE).
   - For local development: create a `.env.local` file:
-    ```
+
+    ```zsh
     PUBLIC_SUPABASE_URL=https://your-project.supabase.co
     PUBLIC_SUPABASE_ANON_KEY=your-anon-key
     PRIVATE_SUPABASE_SERVICE_ROLE=your service_role secret
     ```
+
   - For production, add these two keys to your deployment environment (see below). We suggest you encrypt your service role.
 - Auth Callback
   - Set your default callback URL for auth in the Supabase Auth console. For example, for the demo page we added: `https://saasstarter.work/auth/callback` . Also add that same URL to the the “allowed redirect URL” list in the Supabase auth console further down the page.
@@ -335,6 +298,6 @@ These extensions are reference implementations of commonly needed features. We d
 
 Homescreen Icons are from [Solar Broken Line Icons](https://www.svgrepo.com/collection/solar-broken-line-icons/) and [Solar Linear Icons](https://www.svgrepo.com/collection/solar-linear-icons) via CC Attribution License.
 
-# Sponsor
+## Sponsor
 
 We hope you enjoy SaaS Starter! If you build mobile apps, please check out its sponsor/creator, [Critical Moments](https://criticalmoments.io). We can help improve your mobile app conversions, improve your app rating, and mitigate major bugs and outages.
